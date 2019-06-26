@@ -1,0 +1,201 @@
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <div style="width: 55px; height: 55px; border-radius: 50%; display: inline-block">
+                    <a class="navbar-brand" href=""><img src="./images/mainicon.png" width="50" height="50" alt=""
+                            style="border-radius: 50%;">
+                    </a>
+                </div>
+            </div>
+
+            <div id="name_box" style="display: inline-block;" class="tag_line">
+                <span class="cmpny_name" style="color:#fff; font-family: 'Alegreya Sans SC'; font-size: 1.7em;">Smart
+                    Maintenance Dashboard</span>
+            </div>
+
+            <div class="btngrps navbar-collapse collapse" id="bs-example-navbar-collapse-1">
+                <div class="username_here"></div>
+                <ul class="nav navbar-nav" style="display: inline-block; margin-bottom: 5px;">
+                    <li class="o_dropdwn o_view">
+                        <span>
+                            <button class=" viewdrop dropdown-toggle" type="button" data-toggle="dropdown">View
+                                <span class="caret"></span></button>
+                            <ul class="dropdown-menu viewdrp">
+                                <li class="viewdrpli">
+                                    Daily
+                                </li>
+                                <li class="viewdrpli">
+                                    Weekly
+                                </li>
+                                <li class="viewdrpli">
+                                    Monthly
+                                </li>
+                                <li class="viewdrpli">
+                                    Custom
+                                </li>
+                            </ul>
+                        </span>
+                    </li>
+                    <li class="o_dropdwn">
+                        <span>
+                            <button class=" dropdwn dropdown-toggle" type="button" data-toggle="dropdown">Location
+                                <span class="caret"></span></button>
+                            <ul class="dropdown-menu drpmn">
+                            </ul>
+                        </span>
+                    </li>
+                    <li><span class="btn2">Generate CSV</span></li>
+                    <li><span class="btn4">Logout</span></li>
+                </ul>
+            </div>
+            <button type="button" class="navbar-toggle collapsed btnpress_toggle" data-toggle="collapse"
+                data-target="#bs-example-navbar-collapse" onclick="increasebtnpress()">
+                <span class="sr-only"></span>
+                <span class="icon-bar "></span>
+                <span class="icon-bar "> </span>
+                <span class="icon-bar "></span>
+            </button>
+        </div>
+    </div>
+</nav>
+<style>
+    #name_box {
+        left: 0.5vw;
+        top: 10px;
+        position: relative;
+    }
+
+    .navbar-brand {
+        margin-left: 10px;
+        margin-top: -10px;
+    }
+
+    .dropdwn,
+    .viewdrop {
+        background-color: #3F51B5;
+        color: white;
+        border: none;
+        font-family: 'Alegreya Sans SC';
+        position: relative;
+        cursor: pointer;
+    }
+
+    .dropdwn-svg {
+        display: inline-block;
+        position: relative;
+    }
+
+    .btngrps {
+        display: inline-block;
+        color: white;
+        position: relative;
+        left: 65vw;
+        top: -10px;
+        font-family: 'Alegreya Sans SC';
+
+    }
+
+    .viewdrp {
+        color: black;
+        padding: 3px;
+    }
+
+    .viewdrp>li {
+        padding: 3px;
+    }
+
+    .viewdrp>li:hover {
+        text-decoration: underline;
+    }
+
+    .btngrps>ul>li>span {
+        border: 2.4px solid white;
+        border-radius: 4px;
+        margin: 5px;
+        padding: 12px;
+        transition: all 0.5s;
+        font-weight: 600;
+    }
+
+    .btngrps>ul>li:hover {
+        text-decoration: underline;
+        transition: all 0.5s;
+        cursor: pointer;
+    }
+
+    .btngrps>ul>li:hover .dropdwn {
+        text-decoration: underline;
+        transition: all 0.5s;
+        cursor: pointer;
+    }
+
+    select::-ms-expand {
+        display: none;
+    }
+
+    select {
+        appearance: none;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+    }
+
+    @media screen and (max-width: 1530px) {
+        .btngrps {
+            left: 60vw;
+        }
+
+    }
+
+    @media screen and (max-width: 1250px) {
+        .btngrps {
+            left: 60vw;
+        }
+
+    }
+
+    @media screen and (max-width: 1150px) {
+        .btngrps {
+            left: 57vw;
+        }
+
+
+        .btngrps>ul>li>span {
+            margin: 2px;
+            padding: 5px;
+        }
+    }
+
+    @media screen and (max-width: 900px) {
+
+        .btngrps>ul>li {
+            margin: 10px;
+        }
+
+        .btngrps {
+            left: 45vw;
+        }
+    }
+</style>
+<script>
+    $('.btn4').click(function () {
+        window.location.href = '/logout'
+    })
+    $('.o_dropdwn').click(function () {
+        if (window.innerWidth <= 800) {
+
+            if (turn == 0) {
+                console.log("d")
+                $('.drpmn').css('display', 'block');
+                turn = 1;
+            }
+            else {
+                console.log("e")
+                $('.drpmn').css('display', '');
+                turn = 0
+            }
+        }
+    })
+
+</script>

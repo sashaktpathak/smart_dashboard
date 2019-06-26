@@ -1,0 +1,187 @@
+html, body
+{
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden;
+}
+.container-fluid
+{
+    padding-left: 0px; 
+    padding-right: 0px;
+}
+.navbar .container-fluid
+{
+    padding-left: 15px;
+}
+.small
+{
+    font-size: 0.8em;
+}
+.grey-text
+{
+    color: #999;
+}
+.red-text
+{
+    color: red;
+}
+.alert-marquee>ul
+{
+    list-style-type: none;
+}
+.alert-marquee>ul>li
+{
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+.alert-marquee>ul>li:hover
+{
+    text-decoration: underline;
+}
+.alert-column
+{
+    font-size: 1.2em;
+    cursor: pointer;
+}
+.body_section .row
+{
+    display: flex;
+    flex-direction: row;
+}
+.alert-marquee
+{
+    height: 100%;
+}
+.map-area>img
+{
+    width: 72%;
+    height: 100%;
+    left: 26%;
+    position: relative;
+    cursor: pointer;
+}
+.map-area
+{
+    width: 100%;
+    height: 450px;
+    border-radius: 30px;
+    margin-top: -40px;
+}
+
+.display-flex
+{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+.matrix-div>div
+{
+    width: 230px;
+    height: 150px;
+    cursor: pointer;
+    margin: 5px;
+    text-align: center;
+    font-size: 18px;
+    transition: all 0.35s;
+}
+.matrix-div>div:hover
+{
+    transform: scale(1.04);
+    position: relative;
+    z-index: 10;
+}
+.matrix-div>div:hover .low
+{
+    box-shadow: 4px 4px 3px #888;
+}
+.matrix-div>div:hover .high
+{
+    box-shadow: 4px 4px 3px#4CAF50;
+}
+.matrix-div>div:hover .inactive
+{
+    box-shadow: 4px 4px 3px #F44336;
+}
+.matrix-div .high
+{
+    background: rgba(38, 235, 45, 0.75);
+    box-shadow: 3px 3px 2px #4CAF50;
+}
+.matrix-div .low
+{
+    background: rgba(82, 82, 82, 0.7);
+    box-shadow: 3px 3px 2px #888;
+}
+.matrix-div .inactive
+{
+    background: rgba(244, 67, 54,0.75);
+    box-shadow: 3px 3px 2px #F44336;
+}
+.subrooms>ul
+{
+    list-style-type: none;
+}
+.subrooms>ul>li
+{
+    margin: 5px;
+}
+.subrooms
+{
+    display: none;
+    z-index: 100;
+    background: wheat;
+    position: relative;
+    padding: 5px;
+}
+.room:hover .subrooms
+{
+    display: block;
+}
+.subrooms>ul>li:hover
+{
+    text-decoration: underline;
+    cursor: pointer;
+}
+.bolt-icon
+{
+    margin-left: -30px;
+}
+.current_view
+{
+    border: 2px dotted green;
+    display: inline-block;
+    padding: 7px;
+    padding-left: 10px;
+    padding-right: 0px; 
+    font-weight: 700;
+    font-size: 1.3em;
+    width: 180px;
+}
+.col
+{
+    border: 1px dashed black !important;
+}
+
+@media screen and (max-width: 900px)
+{
+    .body_section .row
+    {
+        display: block;
+    }
+    .current_view
+    {
+        display: block;
+    }
+    .map-area
+    {
+        margin-top: 0px;
+    }
+
+    .map-area>img
+    {
+        width: 90%;
+        left: 4vw;
+    }
+
+}

@@ -185,3 +185,7 @@ html, body
     }
 
 }
+.big-chart
+{
+    height: 600px !important;
+}

@@ -9,7 +9,10 @@ $(document).ready(function () {
         ctx = alllinecharts[i].getContext('2d')
         window.myLine = new Chart(ctx, line_config);
     }
+    ctx = document.getElementsByClassName('big-chart')[0].getContext('2d')
+    window.mybar = new Chart(ctx, bar_config)
     $('.viewdrpli').click(function () {
+        console.log("dj")
         $('.view_text').html($(this).text().toUpperCase())
     })
 })

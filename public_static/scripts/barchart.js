@@ -46,8 +46,8 @@ var barChartData = {
         ]
     }, {
         label: 'Dataset 4',
-        backgroundColor: color(window.chartColors.green).alpha(0.5).rgbString(),
-        borderColor: window.chartColors.green,
+        backgroundColor: color(window.chartColors.yellow).alpha(0.5).rgbString(),
+        borderColor: window.chartColors.yellow,
         borderWidth: 1,
         data: [
             randomScalingFactor(),
@@ -74,8 +74,8 @@ var barChartData = {
         ]
     }, {
         label: 'Dataset 6',
-        backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
-        borderColor: window.chartColors.blue,
+        backgroundColor: color(window.chartColors.purple).alpha(0.5).rgbString(),
+        borderColor: window.chartColors.purple,
         borderWidth: 1,
         data: [
             randomScalingFactor(),
@@ -88,8 +88,8 @@ var barChartData = {
         ]
     }, {
         label: 'Dataset 7',
-        backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
-        borderColor: window.chartColors.blue,
+        backgroundColor: color(window.chartColors.grey).alpha(0.5).rgbString(),
+        borderColor: window.chartColors.grey,
         borderWidth: 1,
         data: [
             randomScalingFactor(),
@@ -173,17 +173,56 @@ var barChartData = {
     }]
 
 };
+function resetZoom() {
+    window.mybar.resetZoom();
+}
 var bar_config = {
     type: 'bar',
     data: barChartData,
     options: {
-        responsive: true,
+        responsive: false,
         legend: {
             position: 'top',
         },
         title: {
             display: true,
             text: 'Chart.js Bar Chart'
+        },
+        scales: {
+            xAxes: [
+                {
+                    scaleLabel: {
+                        display: true,
+                        labelString: "Date"
+                    },
+                    ticks: {
+                        maxRotation: 0
+                    }
+                }
+            ],
+            yAxes: [
+                {
+                    scaleLabel: {
+                        display: true,
+                        labelString: "value"
+                    }
+                }
+            ]
+        },
+        pan: {
+            enabled: true,
+            mode: "x",
+            speed: 10,
+            threshold: 10
+        },
+        zoom: {
+            enabled: true,
+            drag: false,
+            mode: "x",
+            limits: {
+                max: 10,
+                min: 0.5
+            }
         }
     }
 }

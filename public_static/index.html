@@ -66,47 +66,162 @@
             </div>
         </div>
         <div class="row container-fluid">
-            <div class="col col-sm-12 col-md-12">
+            <div class="col col-sm-12 col-md-12 big-chart-div">
+                <button onclick="resetZoom()">Reset Zoom</button>
                 <canvas class="big-chart"></canvas>
             </div>
         </div>
         <div class="row container-fluid">
-            <div class="col col-sm-6 col-md-4">Chart 1
+            <div class="col col-sm-6 col-md-4 group1">Chart 1
+                <button class="btn btn-primary btn-compare">Compare</button>
+                <input type="hidden" class="compare-val" value="0">
+                <div class="compare-area">
+                    <ul class="compare-list">
+                        <li>By Date</li>
+                        <li>By Location</li>
+                        <li>By Group</li>
+                    </ul>
+                </div>
                 <canvas class="line-chart" id="line-canvas1"></canvas>
             </div>
-            <div class="col col-sm-6 col-md-4">Chart 2
+            <div class="col col-sm-6 col-md-4 group2">Chart 2
+                <button class="btn btn-primary btn-compare">Compare</button>
+                <input type="hidden" class="compare-val" value="0">
+                <div class="compare-area">
+                    <ul class="compare-list">
+                        <li>By Date</li>
+                        <li>By Location</li>
+                        <li>By Group</li>
+                    </ul>
+                </div>
                 <canvas class="line-chart" id="line-canvas2"></canvas>
             </div>
-            <div class="col col-sm-6 col-md-4">Chart 3
+            <div class="col col-sm-6 col-md-4 group3">Chart 3
+                <button class="btn btn-primary btn-compare">Compare</button>
+                <input type="hidden" class="compare-val" value="0">
+                <div class="compare-area">
+                    <ul class="compare-list">
+                        <li>By Date</li>
+                        <li>By Location</li>
+                        <li>By Group</li>
+                    </ul>
+                </div>
                 <canvas class="line-chart" id="line-canvas3"></canvas>
             </div>
         </div>
         <div class="row container-fluid">
-            <div class="col col-sm-6 col-md-4">Chart 4
+            <div class="col col-sm-6 col-md-4 group4">Chart 4
+                <button class="btn btn-primary btn-compare">Compare</button>
+                <input type="hidden" class="compare-val" value="0">
+                <div class="compare-area">
+                    <ul class="compare-list">
+                        <li>By Date</li>
+                        <li>By Location</li>
+                        <li>By Group</li>
+                    </ul>
+                </div>
                 <canvas class="line-chart" id="line-canvas4"></canvas>
             </div>
-            <div class="col col-sm-6 col-md-4">Chart 5
-                <canvas class="line-chart" id="line-canvas5"></canvas></div>
-            <div class="col col-sm-6 col-md-4">Chart 6
-                <canvas class="line-chart" id="line-canvas6"></canvas></div>
+            <div class="col col-sm-6 col-md-4 group5">Chart 5
+                <button class="btn btn-primary btn-compare">Compare</button>
+                <input type="hidden" class="compare-val" value="0">
+                <div class="compare-area">
+                    <ul class="compare-list">
+                        <li>By Date</li>
+                        <li>By Location</li>
+                        <li>By Group</li>
+                    </ul>
+                </div>
+                <canvas class="line-chart" id="line-canvas5"></canvas>
+            </div>
+            <div class="col col-sm-6 col-md-4 group6">Chart 6
+                <button class="btn btn-primary btn-compare">Compare</button>
+                <input type="hidden" class="compare-val" value="0">
+                <div class="compare-area">
+                    <ul class="compare-list">
+                        <li>By Date</li>
+                        <li>By Location</li>
+                        <li>By Group</li>
+                    </ul>
+                </div>
+                <canvas class="line-chart" id="line-canvas6"></canvas>
+            </div>
         </div>
         <div class="row container-fluid">
-            <div class="col col-sm-6 col-md-4">Chart 7
+            <div class="col col-sm-6 col-md-4 group7">Chart 7
+                <button class="btn btn-primary btn-compare">Compare</button>
+                <input type="hidden" class="compare-val" value="0">
+                <div class="compare-area">
+                    <ul class="compare-list">
+                        <li>By Date</li>
+                        <li>By Location</li>
+                        <li>By Group</li>
+                    </ul>
+                </div>
                 <canvas class="line-chart" id="line-canvas7"></canvas>
             </div>
-            <div class="col col-sm-6 col-md-4">Chart 8
-                <canvas class="line-chart" id="line-canvas8"></canvas></div>
-            <div class="col col-sm-6 col-md-4">Chart 9
-                <canvas class="line-chart" id="line-canvas9"></canvas></div>
+            <div class="col col-sm-6 col-md-4 group8">Chart 8
+                <button class="btn btn-primary btn-compare">Compare</button>
+                <input type="hidden" class="compare-val" value="0">
+                <div class="compare-area">
+                    <ul class="compare-list">
+                        <li>By Date</li>
+                        <li>By Location</li>
+                        <li>By Group</li>
+                    </ul>
+                </div>
+                <canvas class="line-chart" id="line-canvas8"></canvas>
+            </div>
+            <div class="col col-sm-6 col-md-4 group9">Chart 9
+                <button class="btn btn-primary btn-compare">Compare</button>
+                <input type="hidden" class="compare-val" value="0">
+                <div class="compare-area">
+                    <ul class="compare-list">
+                        <li>By Date</li>
+                        <li>By Location</li>
+                        <li>By Group</li>
+                    </ul>
+                </div>
+                <canvas class="line-chart" id="line-canvas9"></canvas>
+            </div>
         </div>
         <div class="row container-fluid">
-            <div class="col col-sm-6 col-md-4">Chart 10
+            <div class="col col-sm-6 col-md-4 group10">Chart 10
+                <button class="btn btn-primary btn-compare">Compare</button>
+                <input type="hidden" class="compare-val" value="0">
+                <div class="compare-area">
+                    <ul class="compare-list">
+                        <li>By Date</li>
+                        <li>By Location</li>
+                        <li>By Group</li>
+                    </ul>
+                </div>
                 <canvas class="line-chart" id="line-canvas10"></canvas>
             </div>
-            <div class="col col-sm-6 col-md-4">Chart 11
-                <canvas class="line-chart" id="line-canvas11"></canvas></div>
-            <div class="col col-sm-6 col-md-4">Chart 12
-                <canvas class="line-chart" id="line-canvas12"></canvas></div>
+            <div class="col col-sm-6 col-md-4 group11">Chart 11
+                <button class="btn btn-primary btn-compare">Compare</button>
+                <input type="hidden" class="compare-val" value="0">
+                <div class="compare-area">
+                    <ul class="compare-list">
+                        <li>By Date</li>
+                        <li>By Location</li>
+                        <li>By Group</li>
+                    </ul>
+                </div>
+                <canvas class="line-chart" id="line-canvas11"></canvas>
+            </div>
+            <div class="col col-sm-6 col-md-4 group12">Chart 12
+                <button class="btn btn-primary btn-compare">Compare</button>
+                <input type="hidden" class="compare-val" value="0">
+                <div class="compare-area">
+                    <ul class="compare-list">
+                        <li>By Date</li>
+                        <li>By Location</li>
+                        <li>By Group</li>
+                    </ul>
+                </div>
+                <canvas class="line-chart" id="line-canvas12"></canvas>
+            </div>
         </div>
     </section>
     <footer>
@@ -114,6 +229,8 @@
     </footer>
     <script src="scripts/Chart.min.js"></script>
     <script src="scripts/utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.0"></script>
     <script src="scripts/piechart.js"></script>
     <script src="scripts/barchart.js"></script>
     <script src="scripts/linechart.js"></script>

@@ -75,6 +75,16 @@ html, body
     align-items: center;
     justify-content: center;
 }
+.room-matrix>div
+{
+    width: 180px;
+    height: 150px;
+    cursor: pointer;
+    margin: 5px;
+    text-align: center;
+    font-size: 18px;
+    transition: all 0.35s;
+}
 .matrix-div>div
 {
     width: 230px;
@@ -85,38 +95,44 @@ html, body
     font-size: 18px;
     transition: all 0.35s;
 }
-.matrix-div>div:hover
+.matrix-div>div:hover, .room-matrix>div:hover
 {
     transform: scale(1.04);
     position: relative;
     z-index: 10;
 }
-.matrix-div>div:hover .low
+.matrix-div>div:hover .low, .room-matrix>div:hover .low
 {
     box-shadow: 4px 4px 3px #888;
 }
-.matrix-div>div:hover .high
+.matrix-div>div:hover .high, .room-matrix>div:hover .high
 {
     box-shadow: 4px 4px 3px#4CAF50;
 }
-.matrix-div>div:hover .inactive
+.matrix-div>div:hover .inactive, .room-matrix>div:hover .inactive
 {
     box-shadow: 4px 4px 3px #F44336;
 }
-.matrix-div .high
+.matrix-div .high, .room-matrix .high
 {
     background: rgba(38, 235, 45, 0.75);
     box-shadow: 3px 3px 2px #4CAF50;
 }
-.matrix-div .low
+.matrix-div .low, .room-matrix .low
 {
     background: rgba(82, 82, 82, 0.7);
     box-shadow: 3px 3px 2px #888;
 }
-.matrix-div .inactive
+.matrix-div .inactive, .room-matrix .inactive
 {
     background: rgba(244, 67, 54,0.75);
     box-shadow: 3px 3px 2px #F44336;
+}
+.back-btn
+{
+    color: white;
+    background: rgba(128, 0, 0, 0.8);
+    box-shadow: maroon;
 }
 .subrooms>ul
 {
@@ -137,6 +153,10 @@ html, body
 .room:hover .subrooms
 {
     display: block;
+}
+.room:hover .energy, .room:hover .bolt-icon
+{
+    display: none;
 }
 .subrooms>ul>li:hover
 {
@@ -162,7 +182,66 @@ html, body
 {
     border: 1px dashed black !important;
 }
+.big-chart
+{
+    height: 600px !important;
+    width: 100%;
+}
+.btn-compare
+{
+    position: relative;
+    left: 76%;
+}
+.compare-area
+{
+    background: wheat;
+    color: black;
+    z-index:10;
+    width: 40%;
+    left: 45%;
+    position: absolute;
+    box-shadow: 1px 1px #999;
+    display: none;
+}
+.compare-list
+{
+    list-style-type: none;
+    padding: 5px;
+}
+.compare-list>li
+{
+    padding: 5px;
+}
+.compare-list>li:hover
+{
+    cursor: pointer;
+    text-decoration: underline;
+}
 
+.orangediv
+{
+    animation-name: orangediv;
+    animation-duration: 4s;
+    animation-delay: 2s;
+    animation-iteration-count: 1; 
+}
+.room-matrix
+{
+    display: none;
+}
+/*-------------------------------Keyframes-------------------------------------*/
+@keyframes orangediv
+{
+    from
+    {
+        background: rgba(255, 194, 80, 0.6);
+    }
+    to
+    {
+        background: white;
+    }
+}
+/*--------------------------Media Queries-------------------------------------*/
 @media screen and (max-width: 900px)
 {
     .body_section .row
@@ -184,8 +263,4 @@ html, body
         left: 4vw;
     }
 
-}
-.big-chart
-{
-    height: 600px !important;
 }

@@ -2,6 +2,12 @@ $('header').load('header.html', function () {
     $('.viewdrpli').click(function () {
         $('.view_text').html($(this).text().toUpperCase())
     })
+
+    $.get('/getLocations', function (data) {
+        for (t = 0; t < data.length; t++) {
+            $('.drpmn').append("<li class='drpmnli'>" + data[t].location + "</li>")
+        }
+    })
 });
 $('footer').load('footer.html')
 $(document).ready(function () {
@@ -46,11 +52,10 @@ $(document).ready(function () {
     })
     var ctx = document.getElementById('pie-chart-area').getContext('2d');
     window.myPie = new Chart(ctx, pie_config);
-    var alllinecharts = document.getElementsByClassName('line-chart')
-    for (i = 0; i < alllinecharts.length; i++) {
-        ctx = alllinecharts[i].getContext('2d')
-        window.myLine = new Chart(ctx, line_config);
-    }
+    // for (i = 0; i < alllinecharts.length; i++) {
+    //     ctx = alllinecharts[i].getContext('2d')
+    //     window.myLine = new Chart(ctx, line_config);
+    // }
     ctx = document.getElementsByClassName('big-chart')[0].getContext('2d')
     window.mybar = new Chart(ctx, bar_config)
 
@@ -62,4 +67,31 @@ $(document).ready(function () {
             $(this).parent().find('.compare-area').css('display', 'none');
         $(this).parent().find('.compare-val').val(parseInt(cturn) + 1);
     })
+    var alllinecharts = document.getElementsByClassName('line-chart')
+    var grp_i = 0;
+    for (grp_i = 0; grp_i < 12; grp_i++) {
+        $.ajax({
+            type: 'POST',
+            url: '/getData',
+            dataType: 'json',
+            data: { groupid: grp_i + 1 },
+            success: function (data) {
+                var labels = [], energy_data = [];
+                for (var i = 0; i < data.length; i++) {
+                    labels[i] = data[i].time;
+                    energy_data[i] = data[i].energy;
+                }
+                line_config.data.labels = labels;
+                line_config.data.datasets[0].data = energy_data;
+                ctx = alllinecharts[grp_i].getContext('2d')
+                window.myLine = new Chart(ctx, line_config);
+                window.myLine.update()
+            },
+            error: function () {
+                console.log("error")
+            },
+            async: false
+        })
+    }
+
 })

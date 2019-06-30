@@ -46,7 +46,7 @@ var barChartData = {
         ]
     }, {
         label: 'Dataset 4',
-        backgroundColor: color(window.chartColors.yellow).alpha(0.5).rgbString(),
+        backgroundColor: color(window.chartColors.yellow).alpha(0.9).rgbString(),
         borderColor: window.chartColors.yellow,
         borderWidth: 1,
         data: [
@@ -102,8 +102,8 @@ var barChartData = {
         ]
     }, {
         label: 'Dataset 8',
-        backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
-        borderColor: window.chartColors.blue,
+        backgroundColor: color(window.chartColors.green).alpha(1).rgbString(),
+        borderColor: window.chartColors.green,
         borderWidth: 1,
         data: [
             randomScalingFactor(),
@@ -116,7 +116,7 @@ var barChartData = {
         ]
     }, {
         label: 'Dataset 9',
-        backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
+        backgroundColor: 'rgba(12, 255, 0, 0.9)',
         borderColor: window.chartColors.blue,
         borderWidth: 1,
         data: [
@@ -130,7 +130,7 @@ var barChartData = {
         ]
     }, {
         label: 'Dataset 10',
-        backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
+        backgroundColor: 'rgb(238,10,250)',
         borderColor: window.chartColors.blue,
         borderWidth: 1,
         data: [
@@ -144,7 +144,7 @@ var barChartData = {
         ]
     }, {
         label: 'Dataset 11',
-        backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
+        backgroundColor: 'rgb(250,255,0)',
         borderColor: window.chartColors.blue,
         borderWidth: 1,
         data: [
@@ -158,7 +158,7 @@ var barChartData = {
         ]
     }, {
         label: 'Dataset 12',
-        backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
+        backgroundColor: 'rgb(0,29,255)',
         borderColor: window.chartColors.blue,
         borderWidth: 1,
         data: [
@@ -193,7 +193,7 @@ var bar_config = {
                 {
                     scaleLabel: {
                         display: true,
-                        labelString: "Date"
+                        labelString: "Time"
                     },
                     ticks: {
                         maxRotation: 0
@@ -204,7 +204,7 @@ var bar_config = {
                 {
                     scaleLabel: {
                         display: true,
-                        labelString: "value"
+                        labelString: "Energy (in Kwh.)"
                     }
                 }
             ]
@@ -223,6 +223,39 @@ var bar_config = {
                 max: 10,
                 min: 0.5
             }
+        }
+    }
+}
+var barChartData2 = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [{
+        label: 'Dataset 1',
+        backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
+        borderColor: window.chartColors.red,
+        borderWidth: 1,
+        data: [
+            randomScalingFactor(),
+            randomScalingFactor(),
+            randomScalingFactor(),
+            randomScalingFactor(),
+            randomScalingFactor(),
+            randomScalingFactor(),
+            randomScalingFactor()
+        ]
+    }]
+
+};
+var bar_config2 = {
+    type: 'bar',
+    data: barChartData2,
+    options: {
+        responsive: false,
+        legend: {
+            position: 'top',
+        },
+        title: {
+            display: true,
+            text: 'Energy Efficiency Chart'
         }
     }
 }

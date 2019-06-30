@@ -38,14 +38,14 @@ var line_config = {
                 display: true,
                 scaleLabel: {
                     display: true,
-                    labelString: 'Month'
+                    labelString: 'Time'
                 }
             }],
             yAxes: [{
                 display: true,
                 scaleLabel: {
                     display: true,
-                    labelString: 'Value'
+                    labelString: 'Energy (in Kwh.)'
                 }
             }]
         }

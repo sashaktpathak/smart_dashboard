@@ -106,9 +106,17 @@ module.exports = function (app, passport) {
         })
     })
     app.post('/getData', function (req, res) {
-        console.log(req.body.groupid)
         connection.query('USE ' + dbconfig.database)
         connection.query("SELECT * FROM energy where group_id = ?", [req.body.groupid], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getTopData', function (req, res) {
+        console.log("getting..")
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select * from energy where location = ? order by time desc limit 12", [req.body.locationid], (err, rows, fields) => {
             if (err)
                 console.log(err)
             res.send(rows)

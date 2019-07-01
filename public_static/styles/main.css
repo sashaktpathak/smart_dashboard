@@ -91,8 +91,8 @@ html, body
 }
 .room-matrix>div
 {
-    width: 180px;
-    height: 150px;
+    width: 150px;
+    height: 130px;
     cursor: pointer;
     margin: 5px;
     text-align: center;

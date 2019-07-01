@@ -107,16 +107,31 @@ module.exports = function (app, passport) {
     })
     app.post('/getData', function (req, res) {
         connection.query('USE ' + dbconfig.database)
-        connection.query("SELECT * FROM energy where group_id = ?", [req.body.groupid], (err, rows, fields) => {
+        connection.query("SELECT * FROM energy where group_id = ? and location = ?", [req.body.groupid, req.body.locationid], (err, rows, fields) => {
             if (err)
                 console.log(err)
             res.send(rows)
         })
     })
     app.post('/getTopData', function (req, res) {
-        console.log("getting..")
         connection.query('USE ' + dbconfig.database)
         connection.query("select * from energy where location = ? order by time desc limit 12", [req.body.locationid], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getRooms', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select distinct(room_number) as rmn from rooms_data where location = ?", [req.body.locationid], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getTopRooms', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select room_number, energy, status from rooms_data where location = ? order by time(time) desc limit 13;", [req.body.locationid], (err, rows, fields) => {
             if (err)
                 console.log(err)
             res.send(rows)

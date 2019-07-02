@@ -129,6 +129,22 @@ module.exports = function (app, passport) {
             res.send(rows)
         })
     })
+    app.post('/AllData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select sum(energy) as sum, group_id as id from energy where location = ? and date(time) = ? group by group_id;", [req.body.locationid, req.body.date], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getRoomsData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("SELECT * FROM rooms_data where room_number = ? and location = ?", [req.body.rmn, req.body.locationid], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
     app.post('/getTopRooms', function (req, res) {
         connection.query('USE ' + dbconfig.database)
         connection.query("select room_number, energy, status from rooms_data where location = ? order by time(time) desc limit 13;", [req.body.locationid], (err, rows, fields) => {

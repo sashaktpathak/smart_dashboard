@@ -1,5 +1,5 @@
 var location_id = 1;
-
+var view_id = 0;
 $('footer').load('footer.html')
 $(document).ready(function () {
     var location_efficiency = 0;
@@ -8,7 +8,7 @@ $(document).ready(function () {
     var roomslinechartval = [];
     var roomnumberlist = [];
     var today_date;
-    var map = L.map('map-area').setView([28.7041, 77.1025], 13);
+    var map = L.map('map-area').setView([28.7041, 77.1025], 8);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -38,6 +38,15 @@ $(document).ready(function () {
             $(this).parent().find('.compare-area').css('display', 'none');
         $(this).parent().find('.compare-val').val(parseInt(cturn) + 1);
     })
+    function getWeekNumber(d) {
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+        var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        // Calculate full weeks to nearest Thursday
+        var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        // Return array of year and week number
+        return [d.getUTCFullYear(), weekNo];
+    }
     var room_count = 0;
     function refreshdata() {
         var alllinecharts = document.getElementsByClassName('line-chart')
@@ -58,19 +67,65 @@ $(document).ready(function () {
                 success: function (data) {
                     var labels = [], energy_data = [];
                     var itr = 0;
-                    for (var i = 0; i < data.length; i++) {
-                        if (data[i].time.slice(0, 10) == today) {
-                            labels[itr] = data[i].time.slice(11, 19);
-                            energy_data[itr] = data[i].energy;
-                            itr++;
+                    if (view_id == 0) {
+                        for (var i = 0; i < data.length; i++) {
+                            if (data[i].time.slice(0, 10) == today) {
+                                labels[itr] = data[i].time.slice(11, 19);
+                                energy_data[itr] = data[i].energy;
+                                itr++;
+                            }
                         }
+                    }
+                    else if (view_id == 1) {
+                        labels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                        energy_data = [0]
+                        $.ajax({
+                            type: 'POST',
+                            data: { locationid: location_id, weekid: 26, groupid: grp_i + 1 },
+                            dataType: 'json',
+                            url: '/getWeeklyData',
+                            success: function (datanew) {
+                                for (var i = 0; i < datanew.length; i++) {
+                                    if (datanew[i].dayname == labels[0]) {
+                                        energy_data[0] = datanew[i].total;
+                                    }
+                                    if (datanew[i].dayname == labels[1]) {
+                                        energy_data[1] = datanew[i].total;
+                                    }
+                                    if (datanew[i].dayname == labels[2]) {
+                                        energy_data[2] = datanew[i].total;
+                                    }
+                                    if (datanew[i].dayname == labels[3]) {
+                                        energy_data[3] = datanew[i].total;
+                                    }
+                                    if (datanew[i].dayname == labels[4]) {
+                                        energy_data[4] = datanew[i].total;
+                                    }
+                                    if (datanew[i].dayname == labels[5]) {
+                                        energy_data[5] = datanew[i].total;
+                                    }
+                                    if (datanew[i].dayname == labels[6]) {
+                                        energy_data[6] = datanew[i].total;
+                                    }
+                                }
+                            },
+                            error: function (err) {
+                                console.log(err);
+                            },
+                            async: false
+                        })
                     }
                     line_config.data.labels = labels;
                     line_config.data.datasets[0].data = energy_data;
                     ctx = alllinecharts[grp_i].getContext('2d')
-                    window.myLine = new Chart(ctx, line_config);
-                    linechartval[grp_i] = (window.myLine);
-                    window.myLine.update()
+                    if (linechartval[grp_i] == '' || linechartval[grp_i] == undefined) {
+                        window.myLine = new Chart(ctx, line_config);
+                        linechartval[grp_i] = (window.myLine);
+                        window.myLine.update()
+                    }
+                    else {
+                        linechartval[grp_i].update();
+                    }
                     barChartData.datasets[grp_i].data = energy_data;
                     barChartData.labels = labels;
                     window.mybar.update();
@@ -119,28 +174,82 @@ $(document).ready(function () {
                 itr++;
             })
         })
-        $.post('/getTopRooms', { locationid: location_id }, function (data) {
-            room_count = data.length;
-            $('.room_list').html('')
-            $('.room-matrix').html('')
-            $('.room_list').append('<li class="all-room"><b>View All</b></li>')
-            $('.all-room').click(function () {
-                scrollOn = 1;
-                $('.matrix-div').css('display', 'none');
-                $('.room-matrix').css('display', 'flex');
-            })
-            $('.group-btn').click(function () {
-                if (scrollOn == 0) {
-                    var count, tmpcount = 1;
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '/getTopRooms',
+            data: { locationid: location_id },
+            async: false,
+            success: function (data) {
+                room_count = data.length;
+                $('.room_list').html('')
+                $('.room-matrix').html('<div class="back-btn">Go Back<br><br><img src="images/left-arrow.svg" class="goback-btn" width="70"></div>')
+                $('.room_list').append('<li class="all-room"><b>View All</b></li>')
+                $('.all-room').click(function () {
+                    scrollOn = 1;
+                    $('.matrix-div').css('display', 'none');
+                    $('.room-matrix').css('display', 'flex');
+                })
+                $('.group-btn').click(function () {
+                    if (scrollOn == 0) {
+                        var count, tmpcount = 1;
+                        var text = ".group"
+                        var clickedgroup = $(this).text()
+                        $('.group-btn').each(function () {
+                            if ($(this).text() == clickedgroup) {
+                                count = tmpcount
+                            }
+                            tmpcount++;
+                        })
+                        text = text + count;
+                        $('html, body').animate({
+                            scrollTop: $(text).offset().top
+                        }, 2000);
+                        var classlist = $(text).attr('class')
+                        var tempclasslist = classlist + ' orangediv'
+                        $(text).attr('class', tempclasslist)
+                        setTimeout(() => {
+                            $(text).attr('class', classlist)
+                        }, 4000)
+                    }
+                    scrollOn = 0
+                })
+                for (var i = 0; i < data.length; i++) {
+                    var html_room = $('.room-matrix').html();
+                    var status_data = data[i].status;
+                    var energy_data = data[i].energy;
+                    var room_num_data = data[i].room_number;
+                    $('.room_list').append('<li class="roomli">' + room_num_data + '  ' + energy_data + 'Kwh. </li>')
+                    if (status_data == 0) {
+                        html_room = '<div class="room-btn inactive">' + room_num_data + '<br><br><img src="images/lightning-low.svg" class="bolt bolt-icon" width="50"><strong class="energy">' + energy_data + 'Kwh.</strong></div>' + html_room;
+                    }
+                    else if (energy_data == 0) {
+                        html_room = '<div class="room-btn low">' + room_num_data + '<br><br><img src="images/lightning.svg" class="bolt bolt-icon" width="50"><strong class="energy">' + energy_data + 'Kwh.</strong></div>' + html_room;
+                    }
+                    else {
+                        html_room = '<div class="room-btn high">' + room_num_data + '<br><br><img src="images/lightning.svg" class="bolt bolt-icon" width="50"><strong class="energy">' + energy_data + 'Kwh.</strong></div>' + html_room;
+                    }
+                    $('.room-matrix').html(html_room)
+                }
+                $('.back-btn').click(function () {
+                    scrollOn = 0;
+                    $('.matrix-div').css('display', 'flex');
+                    $('.room-matrix').css('display', 'none');
+                })
+                $('.room-btn').click(function () {
+                    var count, tmpcount = 13;
                     var text = ".group"
                     var clickedgroup = $(this).text()
-                    $('.group-btn').each(function () {
+                    if (roomslistcount % 2 == 0)
+                        chart_dropdown();
+                    $('.room-btn').each(function () {
                         if ($(this).text() == clickedgroup) {
                             count = tmpcount
                         }
                         tmpcount++;
                     })
-                    text = text + count;
+                    text = text + count
+                    console.log(text)
                     $('html, body').animate({
                         scrollTop: $(text).offset().top
                     }, 2000);
@@ -150,56 +259,12 @@ $(document).ready(function () {
                     setTimeout(() => {
                         $(text).attr('class', classlist)
                     }, 4000)
-                }
-                scrollOn = 0
-            })
-            for (var i = 0; i < data.length; i++) {
-                var html_room = $('.room-matrix').html();
-                var status_data = data[i].status;
-                var energy_data = data[i].energy;
-                var room_num_data = data[i].room_number;
-                $('.room_list').append('<li class="roomli">' + room_num_data + '  ' + energy_data + 'Kwh. </li>')
-                if (status_data == 0) {
-                    html_room = '<div class="room-btn inactive">' + room_num_data + '<br><br><img src="images/lightning-low.svg" class="bolt bolt-icon" width="50"><strong class="energy">' + energy_data + 'Kwh.</strong></div>' + html_room;
-                }
-                else if (energy_data == 0) {
-                    html_room = '<div class="room-btn low">' + room_num_data + '<br><br><img src="images/lightning.svg" class="bolt bolt-icon" width="50"><strong class="energy">' + energy_data + 'Kwh.</strong></div>' + html_room;
-                }
-                else {
-                    html_room = '<div class="room-btn high">' + room_num_data + '<br><br><img src="images/lightning.svg" class="bolt bolt-icon" width="50"><strong class="energy">' + energy_data + 'Kwh.</strong></div>' + html_room;
-                }
-                $('.room-matrix').html(html_room)
-            }
-            $('.back-btn').click(function () {
-                scrollOn = 0;
-                $('.matrix-div').css('display', 'flex');
-                $('.room-matrix').css('display', 'none');
-            })
-            $('.room-btn').click(function () {
-                var count, tmpcount = 13;
-                var text = ".group"
-                var clickedgroup = $(this).text()
-                if (roomslistcount % 2 == 0)
-                    chart_dropdown();
-                $('.room-btn').each(function () {
-                    if ($(this).text() == clickedgroup) {
-                        count = tmpcount
-                    }
-                    tmpcount++;
-                })
-                text = text + count
-                console.log(text)
-                $('html, body').animate({
-                    scrollTop: $(text).offset().top
-                }, 2000);
-                var classlist = $(text).attr('class')
-                var tempclasslist = classlist + ' orangediv'
-                $(text).attr('class', tempclasslist)
-                setTimeout(() => {
-                    $(text).attr('class', classlist)
-                }, 4000)
 
-            })
+                })
+            },
+            error: function (err) {
+                console.log(err)
+            }
         })
         $.ajax({
             type: 'POST',
@@ -217,7 +282,7 @@ $(document).ready(function () {
                         url: '/getRoomsData',
                         data: { rmn: data[i].rmn, locationid: location_id },
                         success: function (rooms_data) {
-                            var tempStruct = '<div class="col col-sm-6 col-md-4 group' + chart_count + '"><h4>Room No. ' + data[i].rmn + '</h4><button class="btn btn-primary btn-roomcompare">Compare</button><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-rooms-date">By Date</li><li class="compare-rooms-location">By Location</li><li>By Group</li></ul></div><canvas class="room-line-chart" id="line-canvas' + chart_count + '"></canvas></div>'
+                            var tempStruct = '<div class="col col-sm-6 col-md-4 group' + chart_count + '"><h4 class="room_id">Room No. ' + data[i].rmn + '</h4><button class="btn btn-primary btn-roomcompare">Compare</button><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-rooms-date">By Date</li><li class="compare-rooms-location">By Location</li><li>By Group</li></ul></div><canvas class="room-line-chart" id="line-canvas' + chart_count + '"></canvas></div>'
                             var temphtml = $('.rooms-chart').html();
                             $('.rooms-chart').html(tempStruct + temphtml)
                             $('.btn-roomcompare').click(function () {
@@ -227,6 +292,79 @@ $(document).ready(function () {
                                 else
                                     $(this).parent().find('.compare-area').css('display', 'none');
                                 $(this).parent().find('.compare-val').val(parseInt(cturn) + 1);
+                            })
+
+                            /** -----------------------------Rooms Compare------------------------------------------- */
+                            $('.compare-rooms-date').click(function () {
+                                var room_id = $(this).parent().parent().parent().find('.room_id').text().slice(9, 14).trim();
+                                console.log(room_id)
+                                var itr = 0;
+                                var previous_text = $(this).text()
+                                $(this).text("texthereis")
+                                $('.compare-rooms-date').each(function () {
+                                    if ($(this).text() == "texthereis") {
+                                        $.ajax({
+                                            type: 'POST',
+                                            url: '/getRoomsData',
+                                            dataType: 'json',
+                                            data: { rmn: room_id, locationid: location_id },
+                                            success: function (data) {
+                                                var labels = [], energy_data = [];
+                                                var labels2 = [], energy_data2 = [];
+                                                var itr2 = 0, itr3 = 0;
+                                                today = new Date();
+                                                dd = String(today.getDate()).padStart(2, '0');
+                                                mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                                                var yyyy = today.getFullYear();
+                                                today = yyyy + '-' + '07' + '-' + '01';
+                                                for (var i = 0; i < data.length; i++) {
+                                                    if (data[i].time.slice(0, 10) == today) {
+                                                        labels[itr2] = data[i].time.slice(11, 19);
+                                                        energy_data[itr2] = data[i].energy;
+                                                        itr2++;
+                                                    }
+                                                    else if (data[i].time.slice(0, 10) == today_date) {
+                                                        labels2[itr3] = data[i].time.slice(11, 19);
+                                                        energy_data2[itr3] = data[i].energy;
+                                                        itr3++;
+                                                    }
+                                                }
+                                                labels = labels.reverse();
+                                                labels2 = labels2.reverse();
+                                                energy_data = energy_data.reverse();
+                                                energy_data2 = energy_data2.reverse();
+                                                if (labels.length >= labels2.length)
+                                                    line_config.data.labels = labels;
+                                                else
+                                                    line_config.data.labels = labels2;
+
+                                                var ajx = {
+                                                    label: 'Today',
+                                                    backgroundColor: window.chartColors.blue,
+                                                    borderColor: window.chartColors.blue,
+                                                    data: energy_data2,
+                                                    fill: false
+                                                };
+                                                line_config.data.datasets[0] = ajx;
+                                                ajx = {
+                                                    label: 'Previous',
+                                                    backgroundColor: window.chartColors.orange,
+                                                    borderColor: window.chartColors.orange,
+                                                    data: energy_data,
+                                                    fill: false
+                                                };
+                                                line_config.data.datasets[1] = ajx;
+                                                roomslinechartval[itr].update();
+                                            },
+                                            error: function () {
+                                                console.log("error")
+                                            },
+                                            async: false
+                                        })
+                                    }
+                                    itr++;
+                                })
+                                $(this).text(previous_text)
                             })
                         },
                         error: function (err) {
@@ -253,16 +391,58 @@ $(document).ready(function () {
                 success: function (rooms_data) {
                     var labels = [], energy_data = [];
                     var itr = 0;
-                    var tempdate = '2019-07-01'
-                    for (j = 0; j < rooms_data.length; j++) {
-                        if (rooms_data[j].time.slice(0, 10) == tempdate) {
-                            labels[itr] = rooms_data[j].time.slice(11, 19);
-                            energy_data[itr] = rooms_data[j].energy;
-                            itr++;
+                    if (view_id == 0) {
+                        var tempdate = '2019-07-01'
+                        for (j = 0; j < rooms_data.length; j++) {
+                            if (rooms_data[j].time.slice(0, 10) == tempdate) {
+                                labels[itr] = rooms_data[j].time.slice(11, 19);
+                                energy_data[itr] = rooms_data[j].energy;
+                                itr++;
+                            }
                         }
+
+                        labels = labels.reverse();
+                        energy_data = energy_data.reverse();
                     }
-                    labels = labels.reverse();
-                    energy_data = energy_data.reverse();
+                    else if (view_id == 1) {
+                        labels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                        energy_data = [0]
+                        $.ajax({
+                            type: 'POST',
+                            data: { locationid: location_id, weekid: 26, rmn: roomnumberlist[i] },
+                            dataType: 'json',
+                            url: '/getWeeklyRoomsData',
+                            success: function (datanew) {
+                                for (var i = 0; i < datanew.length; i++) {
+                                    if (datanew[i].dayname == labels[0]) {
+                                        energy_data[0] = datanew[i].total;
+                                    }
+                                    if (datanew[i].dayname == labels[1]) {
+                                        energy_data[1] = datanew[i].total;
+                                    }
+                                    if (datanew[i].dayname == labels[2]) {
+                                        energy_data[2] = datanew[i].total;
+                                    }
+                                    if (datanew[i].dayname == labels[3]) {
+                                        energy_data[3] = datanew[i].total;
+                                    }
+                                    if (datanew[i].dayname == labels[4]) {
+                                        energy_data[4] = datanew[i].total;
+                                    }
+                                    if (datanew[i].dayname == labels[5]) {
+                                        energy_data[5] = datanew[i].total;
+                                    }
+                                    if (datanew[i].dayname == labels[6]) {
+                                        energy_data[6] = datanew[i].total;
+                                    }
+                                }
+                            },
+                            error: function (err) {
+                                console.log(err);
+                            },
+                            async: false
+                        })
+                    }
                     line_config.data.labels = labels;
                     line_config.data.datasets[0].data = energy_data;
                     ctx = allroomlinecharts[another_chart_count].getContext('2d')
@@ -273,7 +453,8 @@ $(document).ready(function () {
                 },
                 error: function (err) {
                     console.log(err)
-                }
+                },
+                async: false
 
             })
         }
@@ -445,6 +626,7 @@ $(document).ready(function () {
             window.bar2.update();
         })
     }
+
     $('.compare-date').click(function () {
         var itr = 0;
         var previous_text = $(this).text()
@@ -604,6 +786,13 @@ $(document).ready(function () {
     $('header').load('header.html', function () {
         $('.viewdrpli').click(function () {
             $('.view_text').html($(this).text().toUpperCase())
+            if ($('.view_text').text().toUpperCase().trim() == 'WEEKLY') {
+                view_id = 1;
+            }
+            else {
+                view_id = 0;
+            }
+            refreshdata();
         })
         $('.custom_from_date').change(function () {
             var text = 'CUSTOM<br>FROM: ' + $('.custom_from_date').val();
@@ -621,11 +810,14 @@ $(document).ready(function () {
             }
             $('.drpmnli').click(function () {
                 if ($(this).text() == 'DELHI') {
+                    $('.location_text').text('DELHI');
                     location_id = 1;
                 } if ($(this).text() == 'GURUGRAM') {
                     location_id = 2;
+                    $('.location_text').text('GURUGRAM');
                 } if ($(this).text() == 'BANGLORE') {
                     location_id = 3;
+                    $('.location_text').text('BANGLORE');
                 }
                 refreshdata();
             })

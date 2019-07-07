@@ -20,7 +20,7 @@ var line_config = {
         }]
     },
     options: {
-        responsive: true,
+        responsive: false,
         title: {
             display: true,
             text: 'Chart.js Line Chart'

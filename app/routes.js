@@ -121,6 +121,23 @@ module.exports = function (app, passport) {
             res.send(rows)
         })
     })
+    app.post('/getWeeklyData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select sum(energy) as total, day(time) as day, dayname(time) as dayname from energy where location = ? and group_id = ? and week(time) = ? group by day(time), dayname(time)", [req.body.locationid, req.body.groupid, req.body.weekid], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getWeeklyRoomsData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        console.log(req.body.locationid, req.body.weekid, req.body.rmn);
+        connection.query("select sum(energy) as total, day(time) as day, dayname(time) as dayname from rooms_data where location = ? and week(time) = ? and room_number = ? group by day(time), dayname(time);", [req.body.locationid, req.body.weekid, req.body.rmn], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
     app.post('/getRooms', function (req, res) {
         connection.query('USE ' + dbconfig.database)
         connection.query("select distinct(room_number) as rmn from rooms_data where location = ?", [req.body.locationid], (err, rows, fields) => {

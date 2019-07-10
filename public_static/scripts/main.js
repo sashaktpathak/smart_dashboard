@@ -1,5 +1,6 @@
 var location_id = 1;
 var view_id = 0;
+var scrollOn = 0;
 $('footer').load('footer.html')
 $(document).ready(function () {
     var location_efficiency = 0;
@@ -18,7 +19,6 @@ $(document).ready(function () {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
     $('.matrix-area').load('matrix.html', function () {
-        var scrollOn = 0;
 
     })
     var ctx = document.getElementById('pie-chart-area').getContext('2d');
@@ -71,7 +71,7 @@ $(document).ready(function () {
                         for (var i = 0; i < data.length; i++) {
                             if (data[i].time.slice(0, 10) == today) {
                                 labels[itr] = data[i].time.slice(11, 19);
-                                energy_data[itr] = data[i].energy;
+                                energy_data[itr] = parseInt(data[i].energy);
                                 itr++;
                             }
                         }
@@ -87,26 +87,65 @@ $(document).ready(function () {
                             success: function (datanew) {
                                 for (var i = 0; i < datanew.length; i++) {
                                     if (datanew[i].dayname == labels[0]) {
-                                        energy_data[0] = datanew[i].total;
+                                        energy_data[0] = parseInt(datanew[i].total);
                                     }
                                     if (datanew[i].dayname == labels[1]) {
-                                        energy_data[1] = datanew[i].total;
+                                        energy_data[1] = parseInt(datanew[i].total);
                                     }
                                     if (datanew[i].dayname == labels[2]) {
-                                        energy_data[2] = datanew[i].total;
+                                        energy_data[2] = parseInt(datanew[i].total);
                                     }
                                     if (datanew[i].dayname == labels[3]) {
-                                        energy_data[3] = datanew[i].total;
+                                        energy_data[3] = parseInt(datanew[i].total);
                                     }
                                     if (datanew[i].dayname == labels[4]) {
-                                        energy_data[4] = datanew[i].total;
+                                        energy_data[4] = parseInt(datanew[i].total);
                                     }
                                     if (datanew[i].dayname == labels[5]) {
-                                        energy_data[5] = datanew[i].total;
+                                        energy_data[5] = parseInt(datanew[i].total);
                                     }
                                     if (datanew[i].dayname == labels[6]) {
-                                        energy_data[6] = datanew[i].total;
+                                        energy_data[6] = parseInt(datanew[i].total);
                                     }
+                                }
+                            },
+                            error: function (err) {
+                                console.log(err);
+                            },
+                            async: false
+                        })
+                    }
+                    else if (view_id == 2) {
+                        today = new Date();
+                        dd = String(today.getDate()).padStart(2, '0');
+                        mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                        yyyy = today.getFullYear();
+                        mm = 6
+                        var tempdate = yyyy + '/' + mm + '/';
+                        if (mm == 1 || mm == 3 || mm == 5 || mm == 7 || mm == 8 || mm == 10 || mm == 12) {
+                            for (i = 1; i <= 31; i++) {
+                                labels[i - 1] = tempdate + i;
+                            }
+                        }
+                        else if (mm == 2) {
+                            for (i = 1; i <= 28; i++) {
+                                labels[i - 1] = tempdate + i;
+                            }
+                        }
+                        else {
+                            for (i = 1; i <= 30; i++) {
+                                labels[i - 1] = tempdate + i;
+                            }
+                        }
+                        energy_data = [0]
+                        $.ajax({
+                            type: 'POST',
+                            data: { locationid: location_id, weekid: mm, groupid: grp_i + 1 },
+                            dataType: 'json',
+                            url: '/getMonthlyData',
+                            success: function (datanew) {
+                                for (var i = 0; i < datanew.length; i++) {
+                                    energy_data[datanew[i].day - 1] = parseInt(datanew[i].total);
                                 }
                             },
                             error: function (err) {
@@ -443,8 +482,48 @@ $(document).ready(function () {
                             async: false
                         })
                     }
+                    else if (view_id == 2) {
+                        today = new Date();
+                        dd = String(today.getDate()).padStart(2, '0');
+                        mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                        yyyy = today.getFullYear();
+                        mm = 7
+                        var tempdate = yyyy + '/' + mm + '/';
+                        if (mm == 1 || mm == 3 || mm == 5 || mm == 7 || mm == 8 || mm == 10 || mm == 12) {
+                            for (j = 1; j <= 31; j++) {
+                                labels[j - 1] = tempdate + j;
+                            }
+                        }
+                        else if (mm == 2) {
+                            for (j = 1; j <= 28; j++) {
+                                labels[j - 1] = tempdate + j;
+                            }
+                        }
+                        else {
+                            for (j = 1; j <= 30; j++) {
+                                labels[j - 1] = tempdate + j;
+                            }
+                        }
+                        energy_data = [0]
+                        $.ajax({
+                            type: 'POST',
+                            data: { locationid: location_id, monthid: mm, rmn: roomnumberlist[i] },
+                            dataType: 'json',
+                            url: '/getMonthlyRoomsData',
+                            success: function (datanew) {
+                                for (var j = 0; j < datanew.length; j++) {
+                                    energy_data[datanew[j].day - 1] = datanew[j].total;
+                                }
+                            },
+                            error: function (err) {
+                                console.log(err);
+                            },
+                            async: false
+                        })
+                    }
                     line_config.data.labels = labels;
                     line_config.data.datasets[0].data = energy_data;
+
                     ctx = allroomlinecharts[another_chart_count].getContext('2d')
 
                     window.myline2 = new Chart(ctx, line_config);
@@ -452,7 +531,7 @@ $(document).ready(function () {
                     another_chart_count--;
                 },
                 error: function (err) {
-                    console.log(err)
+                    console.log("error", err)
                 },
                 async: false
 
@@ -484,6 +563,7 @@ $(document).ready(function () {
     function piechartdata() {
         var tempdate = '2019-06-28'
         var grouplist = []
+        var groupnamelist = []
         var energylist = []
         var backgroundlist = ['rgb(249, 155, 146)', 'rgb(135, 164, 195)', 'rgb(116, 237, 224)', 'rgb(215, 199, 179)', 'rgb(0,0,0)', 'rgb(220,230,130)', 'rgb(246, 134, 72)', 'rgb(238, 102, 108)', 'rgb(103, 138, 104)', 'rgb(178, 204, 141)', 'rgb(218, 178, 212)', 'rgb(228, 210, 145)', 'rgb(102, 194, 145)', 'rgb(255,0,0)', 'rgb(0,255,0)', 'rgb(0,0,255)'];
 
@@ -495,6 +575,7 @@ $(document).ready(function () {
             success: function (data) {
                 for (i = 0; i < data.length; i++) {
                     grouplist.push(data[i].id)
+                    groupnamelist.push(data[i].grpname)
                     energylist[data[i].id] = data[i].sum;
                 }
             },
@@ -512,6 +593,7 @@ $(document).ready(function () {
                 for (i = 0; i < data.length; i++) {
                     if (!grouplist.includes(data[i].id)) {
                         grouplist.push(data[i].id);
+                        groupnamelist.push(data[i].grpname)
                         energylist[data[i].id] = data[i].sum;
                     }
                     else {
@@ -534,6 +616,7 @@ $(document).ready(function () {
                 for (i = 0; i < data.length; i++) {
                     if (!grouplist.includes(data[i].id)) {
                         grouplist.push(data[i].id);
+                        groupnamelist.push(data[i].grpname)
                         energylist[data[i].id] = data[i].sum;
                     }
                     else {
@@ -559,7 +642,7 @@ $(document).ready(function () {
             backgroundColor: background_data22
         };
         pie_config.data.datasets[0] = ajx;
-        pie_config.data.labels = grouplist;
+        pie_config.data.labels = groupnamelist;
         window.myPie.update()
 
     }
@@ -650,12 +733,12 @@ $(document).ready(function () {
                         for (var i = 0; i < data.length; i++) {
                             if (data[i].time.slice(0, 10) == today) {
                                 labels[itr2] = data[i].time.slice(11, 19);
-                                energy_data[itr2] = data[i].energy;
+                                energy_data[itr2] = parseInt(data[i].energy);
                                 itr2++;
                             }
                             else if (data[i].time.slice(0, 10) == today_date) {
                                 labels2[itr3] = data[i].time.slice(11, 19);
-                                energy_data2[itr3] = data[i].energy;
+                                energy_data2[itr3] = parseInt(data[i].energy);
                                 itr3++;
                             }
                         }
@@ -788,6 +871,9 @@ $(document).ready(function () {
             $('.view_text').html($(this).text().toUpperCase())
             if ($('.view_text').text().toUpperCase().trim() == 'WEEKLY') {
                 view_id = 1;
+            }
+            else if ($('.view_text').text().toUpperCase().trim() == 'MONTHLY') {
+                view_id = 2;
             }
             else {
                 view_id = 0;

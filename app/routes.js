@@ -99,7 +99,39 @@ module.exports = function (app, passport) {
 
     app.get('/getLocations', function (req, res) {
         connection.query('USE ' + dbconfig.database)
-        connection.query("SELECT * FROM locations", (err, rows, fields) => {
+        connection.query("SELECT * FROM locations order by id", (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.get('/getGroupsCount', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select count(distinct(group_id)) as gcount from groups g1 where g1.locationid = ? ", [req.query.location_id], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getSubGroupsCount', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select count(distinct(subgroup_name)) as sgcount from subgroups where locationid = ? and parentgroup_id = ?; ", [req.body.location_id, req.body.parentgroup_id], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getGroups', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select g.group_name, g.group_id, e.status, e.energy, g.subgroup from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? order by e.time desc limit ?;", [req.body.location_id, parseInt(req.body.count)], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getSubGroups', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query(" select s.subgroup_id, s.parentgroup_id, s.locationid, se.time, s.subgroup_name, se.energy from subgroups s, subgroups_energy se where s.locationid = ? and s.subgroup_id = se.subgroup_id and s.subgroup_name = se.subgroup_name  and s.parentgroup_id = ? order by time desc limit ?;", [req.body.location_id, req.body.parentgroup_id, parseInt(req.body.sgcount)], (err, rows, fields) => {
             if (err)
                 console.log(err)
             res.send(rows)
@@ -129,9 +161,24 @@ module.exports = function (app, passport) {
             res.send(rows)
         })
     })
+    app.post('/getMonthlyData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select sum(energy) as total, day(time) as day from energy where location = ? and group_id = ? and month(time) = ? group by day(time)", [req.body.locationid, req.body.groupid, req.body.weekid], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getMonthlyRoomsData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select sum(energy) as total, day(time) as day from rooms_data where location = ? and month(time) = ? and room_number = ? group by day(time)", [req.body.locationid, req.body.monthid, req.body.rmn], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
     app.post('/getWeeklyRoomsData', function (req, res) {
         connection.query('USE ' + dbconfig.database)
-        console.log(req.body.locationid, req.body.weekid, req.body.rmn);
         connection.query("select sum(energy) as total, day(time) as day, dayname(time) as dayname from rooms_data where location = ? and week(time) = ? and room_number = ? group by day(time), dayname(time);", [req.body.locationid, req.body.weekid, req.body.rmn], (err, rows, fields) => {
             if (err)
                 console.log(err)
@@ -146,9 +193,117 @@ module.exports = function (app, passport) {
             res.send(rows)
         })
     })
+    app.post('/getLinesData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select g.group_name, g.group_id,time(e.time) as time, e.energy, g.subgroup from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? and e.group_id = ? and date(e.time) = ? order by e.time desc", [req.body.locationid, req.body.group_id, req.body.date], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+
+    app.post('/getWeeklyLinesData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select g.group_name, g.group_id,dayname(e.time) as dayname, e.energy from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? and e.group_id = ? and week(time) = ? order by e.time desc;", [req.body.locationid, req.body.group_id, req.body.weekid], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+
+    app.post('/getMonthlyLinesData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select g.group_name, g.group_id,day(e.time) as day, e.energy from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? and e.group_id = ? and month(time) = ? order by e.time desc;", [req.body.locationid, req.body.group_id, req.body.monthid], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getCustomLinesData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select g.group_name, g.group_id, e.time as dates, e.energy from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? and e.group_id = ? and date(time) >= ? and date(time) <= ? order by e.time desc;", [req.body.locationid, req.body.group_id, req.body.fromdate, req.body.todate], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getSubLinesData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select * from subgroups_energy where locationid = ? and date(time) = ? and subgroup_name = ?", [req.body.locationid, req.body.date, req.body.subgroup_name], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+
+    app.post('/getWeeklySubLinesData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select energy, subgroup_name, dayname(time) as dayname from subgroups_energy where locationid = ? and week(time) = ? and subgroup_name = ?", [req.body.locationid, req.body.weekid, req.body.subgroup_name], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+
+    app.post('/getMonthlySubLinesData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select energy, subgroup_name, day(time) as day from subgroups_energy where locationid = ? and month(time) = ? and subgroup_name = ?", [req.body.locationid, req.body.monthid, req.body.subgroup_name], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getCustomSubLinesData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select energy, subgroup_name, date(time) as dates from subgroups_energy where locationid = ? and date(time) >= ? and date(time) <= ? and subgroup_name = ?", [req.body.locationid, req.body.fromdate, req.body.todate, req.body.subgroup_name], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
     app.post('/AllData', function (req, res) {
         connection.query('USE ' + dbconfig.database)
-        connection.query("select sum(energy) as sum, group_id as id from energy where location = ? and date(time) = ? group by group_id;", [req.body.locationid, req.body.date], (err, rows, fields) => {
+        connection.query("select sum(energy) as sum, group_id as id, group_name as grpname from energy where location = ? and date(time) = ? group by group_id, group_name", [req.body.locationid, req.body.date], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/AllWeeklyData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select sum(energy) as sum, group_id as id, group_name as grpname from energy where location = ? and week(time) = ? group by group_id, group_name", [req.body.locationid, req.body.week], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/AllMonthlyData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select sum(energy) as sum, group_id as id, group_name as grpname from energy where location = ? and month(time) = ? group by group_id, group_name", [req.body.locationid, req.body.month], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/AllCustomData', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select sum(energy) as sum, group_id as id, group_name as grpname from energy where location = ? and date(time) >= ? and date(time) <= ? group by group_id, group_name", [req.body.locationid, req.body.date1, req.body.date2], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.get('/allroomscount', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select count(distinct(subgroup_name)) as room_count from subgroups where parentgroup_id = 8 group by locationid", [req.body.locationid, req.body.date1, req.body.date2], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.get('/getdistinctsubgroups', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select distinct(subgroup_name) from subgroups_energy where locationid = ?", [req.query.locationid], (err, rows, fields) => {
             if (err)
                 console.log(err)
             res.send(rows)

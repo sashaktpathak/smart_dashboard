@@ -186,7 +186,8 @@ var bar_config = {
         },
         title: {
             display: true,
-            text: 'Chart.js Bar Chart'
+            text: 'Aggregated Bar Chart',
+            fontSize: 18,
         },
         scales: {
             xAxes: [
@@ -196,7 +197,8 @@ var bar_config = {
                         labelString: "Time"
                     },
                     ticks: {
-                        maxRotation: 0
+                        maxRotation: 0,
+                        fontSize: 17
                     }
                 }
             ],
@@ -205,6 +207,9 @@ var bar_config = {
                     scaleLabel: {
                         display: true,
                         labelString: "Energy (in Kwh.)"
+                    },
+                    ticks: {
+                        fontSize: 17
                     }
                 }
             ]
@@ -252,10 +257,12 @@ var bar_config2 = {
         responsive: false,
         legend: {
             position: 'top',
+            fontSize: 15,
         },
         title: {
             display: true,
-            text: 'Energy Efficiency Chart'
+            text: 'Energy Efficiency Chart',
+            fontSize: 15,
         }
     }
 }

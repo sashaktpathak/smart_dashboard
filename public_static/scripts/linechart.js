@@ -23,11 +23,16 @@ var line_config = {
         responsive: false,
         title: {
             display: true,
-            text: 'Chart.js Line Chart'
+            //text: 'Chart.js Line Chart'
         },
         tooltips: {
             mode: 'index',
             intersect: false,
+            callbacks: {
+                label: function (tooltipItem, data) {
+                    return tooltipItem.xLabel;
+                }
+            }
         },
         hover: {
             mode: 'nearest',
@@ -39,6 +44,10 @@ var line_config = {
                 scaleLabel: {
                     display: true,
                     labelString: 'Time'
+                },
+                ticks:
+                {
+                    fontSize: 13.5,
                 }
             }],
             yAxes: [{
@@ -46,6 +55,10 @@ var line_config = {
                 scaleLabel: {
                     display: true,
                     labelString: 'Energy (in Kwh.)'
+                },
+                ticks:
+                {
+                    fontSize: 13.5,
                 }
             }]
         }

@@ -30,14 +30,6 @@ $(document).ready(function () {
     ctx = document.getElementsByClassName('big-chart')[0].getContext('2d')
     window.mybar = new Chart(ctx, bar_config)
 
-    $('.btn-compare').click(function () {
-        var cturn = $(this).parent().find('.compare-val').val();
-        if (cturn % 2 == 0)
-            $(this).parent().find('.compare-area').css('display', 'block');
-        else
-            $(this).parent().find('.compare-area').css('display', 'none');
-        $(this).parent().find('.compare-val').val(parseInt(cturn) + 1);
-    })
     function getWeekNumber(d) {
         d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
         d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));

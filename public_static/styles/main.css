@@ -260,6 +260,25 @@ html, body
     list-style-type: none;
     padding: 5px;
 }
+.compare-list ul
+{
+    list-style-type: none;
+    z-index: 101;
+    display: none;
+}
+.compare-list>li:hover ul
+{
+    display: block;
+}
+.compare-list>li:hover ul>li:hover
+{
+    text-decoration: underline overline;
+    text-decoration-color: red;
+}
+.compare-list ul>li
+{
+    padding: 5px;  
+}
 .compare-list>li
 {
     padding: 5px;

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+
+    <link type="text/css" rel="stylesheet" href="styles/style_login.css" />
+
+    <link rel="shortcut icon" type="image/png" href="images/favicon.png">
+    <title>TU Admin Dashboard</title>
+    <style>
+        h2 {
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="styles/AdminLTE.min.css">
+
+</head>
+
+<body>
+    <style>
+        ::-webkit-scrollbar {
+
+            height: 0.5em
+        }
+
+        ::-webkit-scrollbar-button {
+            background: #ccc
+        }
+
+        ::-webkit-scrollbar-track-piece {
+            background: #eee
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ccc
+        }
+
+        ​
+    </style>
+
+
+
+    <style>
+        body {
+            font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        .background {
+            background-image: url("loadingback.gif");
+            background-repeat: no-repeat;
+            background-size: 30px 30px;
+            background-position: left;
+        }
+
+        .main-sidebar {
+            background: #222D32;
+        }
+
+        .btn-change-password {
+            cursor: pointer;
+        }
+    </style>
+    <header class="main-header" align="left">
+        <!-- Logo -->
+        <a href="#" class="logo" style="background-color:#33cc66">
+            <!-- mini logo for sidebar mini 50x50 pixels -->
+            <span class="logo-mini" style="color:White"><b>Admin</b></span>
+            <!-- logo for regular state and mobile devices -->
+            <span class="logo-lg" style="color:white"><b>TU</b></span>
+        </a>
+        <!-- Header Navbar: style can be found in header.less -->
+        <nav class="navbar navbar-static-top" style="background-color:#339966">
+            <!-- Sidebar toggle button-->
+
+
+            <div class="navbar-custom-menu">
+                <ul class="nav navbar-nav">
+
+                    <li>
+                        <a style="color:white; margin-right:10px" href="/"> Go to Dashboard</a>
+                    </li>
+                    <li style="color:white;margin-top:15px;margin-left:-10px"><b class="welcome_user">
+                            Welcome !</b>
+                    </li>
+                    <li>
+                        <a href="/logout" style="color:white">Logout&nbsp;&nbsp;&nbsp;<i class="fa fa-sign-out"></i></a>
+                    </li>
+                </ul>
+            </div>
+
+
+
+        </nav>
+    </header>
+    <!-- Left side column. contains the logo and sidebar -->
+    <aside class="main-sidebar">
+        <!-- sidebar: style can be found in sidebar.less -->
+        <section class="sidebar">
+            <!-- Sidebar user panel -->
+
+            <!-- search form -->
+
+            <!-- /.search form -->
+            <!-- sidebar menu: : style can be found in sidebar.less -->
+            <ul class="sidebar-menu">
+
+
+                <li class="treeview" name="dashboard" id="dashboard">
+                    <a href="#">
+                        <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                        <span class="pull-right-container">
+                        </span>
+                    </a>
+
+                </li>
+
+                <li class=" treeview" name="adduser" id="adduser">
+                    <a href="#">
+                        <i class="fa fa-user"></i> <span>Add User</span>
+                        <span class="pull-right-container">
+                        </span>
+                    </a>
+
+                </li>
+
+                <li class=" treeview" name="edituser" id="edituser">
+                    <a href="#">
+                        <i class="fa fa-user"></i> <span>Edit Details</span>
+                        <span class="pull-right-container">
+                        </span>
+                    </a>
+
+                </li>
+                <li class=" treeview" name="active_users" id="active_users">
+                    <a href="#">
+                        <i class="fa fa-user"></i> <span>Active/Inactive Users</span>
+                        <span class="pull-right-container">
+                        </span>
+                    </a>
+
+                </li>
+            </ul>
+        </section>
+        <!-- /.sidebar -->
+    </aside>
+    <section class="list_user"></section>
+</body>
+
+<script>
+    var activeturn = 1;
+    var inactiveturn = 0;
+    function GetURLParameter(sParam) {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+        for (var i = 0; i < sURLVariables.length; i++) {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam) {
+                return decodeURIComponent(sParameterName[1]);
+            }
+        }
+    }
+
+    var id_url = GetURLParameter('id');
+    function activeusers() {
+        $('.list_user').load('list_users.html', function () {
+
+
+            function check() {
+                var count = 0
+                $('input[name="user_id"]').each(function () {
+                    if ($(this).is(":checked")) {
+                        var vv = $(this)
+                        $.post('/admin@deluser', { id: $(this).val() }, function (data) {
+                            if (data == "Success") {
+                                vv.parent().parent().remove()
+                            }
+                        })
+                        count++
+                    }
+                })
+                if (count) {
+                    alert("User Deleted Sucessfuly")
+                }
+                else {
+
+                    alert("Please Select Atleast one checkbox")
+                    return false;
+                }
+            }
+
+            $.post('/admin@allusers', function (data) {
+                var i_count = 1
+                for (i = 0; i < data.length; i++) {
+                    if (data[i].id != id_url) {
+                        if (data[i].type)
+                            user_type = 'Normal User'
+                        else
+                            user_type = 'Administrator'
+                        var ro = '<tr><td>' + (i_count) + '</td><td>' + data[i].username + '</td><td>' + user_type + '</td><td><input type="checkbox" name="user_id" value="' + data[i].id + '"></td></tr>'
+                        $('#tb_list_users tr:last').after(ro)
+                        i_count++
+                    }
+                    else if (data[i].id == id_url) {
+                        $('.welcome_user').html('Welcome ! &nbsp&nbsp' + data[i].username)
+                    }
+                }
+            })
+            $('.btn-user-delete').click(function () {
+                check()
+            })
+        })
+    }
+    function editusers() {
+        $.post('/admin@allusers', function (data) {
+            var i_count = 1
+            for (i = 0; i < data.length; i++) {
+                if (data[i].id != id_url) {
+                    if (data[i].type)
+                        user_type = 'Normal User'
+                    else
+                        user_type = 'Administrator'
+                    var ro = '<tr><td>' + (i_count) + '<input type="hidden" class="useridd" value="' + data[i].id + '">' + '</td><td>' + data[i].username + '</td><td>' + user_type + '</td><td><a class="btn-change-password" data-toggle="modal" data-target="#changemodal" > Change Password</a ></td ></tr > '
+                    $('#tb_edit_users tr:last').after(ro)
+                    i_count++
+                }
+            }
+            $('.btn-change-password').click(function () {
+                //console.log($(this).parent().parent().find('.useridd').val())
+                $('.edit_user_id').val($(this).parent().parent().find('.useridd').val())
+                console.log($('.edit_user_id').val())
+            })
+            $('.btn-apply').click(function () {
+                if ($('.pswd').val() == $('.cnfpswd').val()) {
+                    $.post('/apply_changes@password', { id: $('.edit_user_id').val(), npwd: $('.pswd').val() }, function (data) {
+                        if (data == "Success") {
+                            $('#changemodal').modal('toggle');
+                            alert("Password Changed Successfuly")
+                        }
+                    })
+                }
+                else {
+                    alert("Password not Matched!!")
+                }
+            })
+        })
+    }
+    activeusers()
+    $('#adduser').click(function () {
+        $('.list_user').load('add_users.html', function () {
+            $('.btn-adduser').click(function () {
+                $.post('/adduser', { username: $('.username').val(), password: $('.password').val(), type: $('.admincheck').is(':checked') }, function (data) {
+                    console.log(data)
+                    if (data == 'Success') {
+                        alert('User Added Successfuly!')
+                        $('.username').val('')
+                        $('.password').val('')
+                        $('.admincheck').prop("checked", false)
+                    }
+                })
+            })
+        })
+
+    })
+    function setvisibility_active() {
+        if (activeturn % 2 == 0) {
+            $('.active_container').css("display", "none")
+        }
+        else {
+            $('.active_container').css("display", "block")
+        }
+    }
+    function setvisibility_inactive() {
+        if (inactiveturn % 2 == 0) {
+            $('.inactive_container').css("display", "none")
+        }
+        else {
+            $('.inactive_container').css("display", "block")
+        }
+    }
+    function addtotb() {
+        var active_count = 1, inactive_count = 1
+        $.post('/admin@allusers', function (data) {
+            for (i = 0; i < data.length; i++) {
+                if (data[i].id != id_url && data[i].active >= 1) {
+                    if (data[i].type)
+                        user_type = 'Normal User'
+                    else
+                        user_type = 'Administrator'
+                    var ro = '<tr><td>' + (active_count) + '</td><td>' + data[i].username + '</td><td>' + user_type + '</td><td><input type="checkbox" name="active_user_id" value="' + data[i].id + '"></td></tr>'
+                    $('#tb_active_users tr:last').after(ro)
+                    active_count++
+                }
+                if (data[i].id != id_url && data[i].active == 0) {
+                    if (data[i].type)
+                        user_type = 'Normal User'
+                    else
+                        user_type = 'Administrator'
+                    var ro = '<tr><td>' + (inactive_count) + '</td><td>' + data[i].username + '</td><td>' + user_type + '</td><td><input type="checkbox" name="inactive_user_id" value="' + data[i].id + '"></td></tr>'
+                    $('#tb_inactive_users tr:last').after(ro)
+                    inactive_count++
+                }
+            }
+        })
+    }
+    function active_inactive() {
+        $('.active_down').click(function () {
+            activeturn += 1;
+            setvisibility_active()
+        })
+        $('.inactive_down').click(function () {
+            inactiveturn += 1;
+            setvisibility_inactive()
+        })
+        addtotb();
+        $('.btn-user-deactivate').click(function () {
+            var count1 = 0
+            $('input[name="active_user_id"]').each(function () {
+                if ($(this).is(":checked")) {
+                    var vv = $(this)
+                    $.post('/admin@deactivate', { id: $(this).val() }, function (data) {
+                        if (data == "Success") {
+                            $("#tb_inactive_users").find("tr:gt(0)").remove();
+                            $("#tb_active_users").find("tr:gt(0)").remove();
+                            addtotb();
+                        }
+                    })
+                    count1++
+                }
+            })
+            if (count1) {
+                alert("Users Deactivated Sucessfuly")
+            }
+            else {
+
+                alert("Please Select Atleast one checkbox")
+                return false;
+            }
+        })
+        $('.btn-user-active').click(function () {
+            var count2 = 0
+            $('input[name="inactive_user_id"]').each(function () {
+                if ($(this).is(":checked")) {
+                    var vv = $(this)
+                    $.post('/admin@activate', { id: $(this).val() }, function (data) {
+                        if (data == "Success") {
+                            $("#tb_inactive_users").find("tr:gt(0)").remove();
+                            $("#tb_active_users").find("tr:gt(0)").remove();
+                            addtotb();
+                        }
+                    })
+                    count2++
+                }
+            })
+            if (count2) {
+                alert("Users Activated Sucessfuly")
+            }
+            else {
+
+                alert("Please Select Atleast one checkbox")
+                return false;
+            }
+        })
+    }
+    $('#dashboard').click(function () {
+        $('.list_user').load('list_users.html', function () {
+            activeusers()
+        })
+    })
+    $('#edituser').click(function () {
+        $('.list_user').load('edit_users.html', function () {
+            editusers()
+        })
+    })
+    $('#active_users').click(function () {
+        $('.list_user').load('active_users.html', function () {
+            setvisibility_active()
+            setvisibility_inactive()
+            active_inactive()
+        })
+    })
+
+</script>
+
+</html>

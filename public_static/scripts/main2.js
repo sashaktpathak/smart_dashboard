@@ -5,6 +5,7 @@ var viewid = 0;
 var group_count = 0;
 var linechartval = [], sublinechartval = [];
 var alllinecharts = [], allsublinecharts = [];
+var tempcomparedrpli;
 $(document).ready(function () {
     /** -----------------------------Map Formation-------------------------------------------------- */
     var map = L.map('map-area').setView([28.7041, 77.1025], 8);
@@ -13,6 +14,7 @@ $(document).ready(function () {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
     /**--------------------------------loading header------------------------------------------------ */
+
     $('header').load('header.html', function () {
         //loading locations
         $.ajax({
@@ -22,11 +24,11 @@ $(document).ready(function () {
             url: '/getLocations',
             async: false,
             success: function (data) {
+                locationid = data[0].id;
                 for (t = 0; t < data.length; t++) {
                     $('.drpmn').append("<li class='drpmnli'>" + data[t].location + "<input type='hidden' class='stored_location_id' value='" + data[t].id + "'></li>")
                 }
                 totallocations = data.length;
-                locationid = data[0].id;
             },
             error: function (err) {
                 console.log("Error!!", err)
@@ -115,7 +117,7 @@ $(document).ready(function () {
                             btntype = 'high';
                     }
                     if (data[itr].subgroup == 0) {
-                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + data[itr].group_name + '</div><br><br><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + data[itr].energy + ' Kwh.</strong ></div > ';
+                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + data[itr].group_name + '</div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + data[itr].energy + ' Kwh.</strong ></div > ';
                     }
                     else {
                         temp = ' <div class="room group-btn ' + btntype + '"><div class="group-btn-title">' + data[itr].group_name + '</div><div class="subrooms"><ul class="room_list"><li class="all-room"><b>View All</b></li>';
@@ -146,7 +148,7 @@ $(document).ready(function () {
                                 console.log("Error!!", err);
                             }
                         })
-                        temp = temp + '</ul></div><br><br><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy">' + data[itr].energy + ' Kwh.</strong></div>';
+                        temp = temp + '</ul></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy">' + data[itr].energy + ' Kwh.</strong></div>';
                     }
                     $('.matrix-div').html(temphtml + temp);
                 }
@@ -161,7 +163,7 @@ $(document).ready(function () {
         $('.group-charts-area').html(' ');
         for (var i = 0; i < group_count; i++) {
             var temphtml = $('.group-charts-area').html();
-            var temp = '<div class="col col-sm-6 col-md-4 group' + (i + 1) + '">Chart ' + (i + 1) + ' <button class="btn btn-primary btn-compare" > Compare</button ><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-date">By Date<input type="hidden" class="date-val" value="0"><input type="date" class="custom_date custom_compare_date"></li><li class="compare-location">By Location<ul class="compare-location-list"></ul></li><li>By Group<ul class="compare-group-list"></ul></li></ul></div><canvas class="line-chart" id="line-canvas' + (i + 1) + '"></canvas></div> ';
+            var temp = '<div class="col col-sm-6 col-md-4 group' + (i + 1) + '"><div class="display-flex3">Chart ' + (i + 1) + ' <button class="btn btn-primary btn-compare" > Compare</button ></div><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-date">By View<input type="hidden" class="date-val" value="0"><input type="date" class="custom_date custom_compare_date"></li><li class="compare-location">By Location<ul class="compare-location-list"></ul></li><li>By Group<ul class="compare-group-list"></ul></li></ul></div><canvas class="line-chart" id="line-canvas' + (i + 1) + '"></canvas></div> ';
             $('.group-charts-area').html(temphtml + temp);
         }
         alllinecharts = $('.line-chart');
@@ -179,7 +181,7 @@ $(document).ready(function () {
             success: function (data) {
                 for (itr = 0; itr < data.length; itr++) {
                     var temphtml = $('.rooms-chart').html();
-                    var temp = '<div class="col col-sm-6 col-md-4 subgroup' + (itr + 1) + '"><span class="subgroup-name">' + data[itr].subgroup_name + ' </span><button class="btn btn-primary btn-compare" > Compare</button ><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-date">By Date<input type="hidden" class="date-val" value="0"><input type="date" class="custom_date custom_compare_date"></li><li class="compare-location">By Location<ul class="compare-location-list"></ul></li><li>By Group<ul class="compare-subgroup-list"></ul></li></ul></div><canvas class="line-subchart" id="line-subcanvas' + (i + 1) + '"></canvas></div> ';
+                    var temp = '<div class="col col-sm-6 col-md-4 subgroup' + (itr + 1) + '"><div class="display-flex3"><span class="subgroup-name">' + data[itr].subgroup_name + ' </span><button class="btn btn-primary btn-compare" > Compare</button ></div><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-date">By View<input type="hidden" class="date-val" value="0"><input type="date" class="custom_date custom_compare_date"></li><li class="compare-location">By Location<ul class="compare-location-list"></ul></li><li>By Group<ul class="compare-subgroup-list"></ul></li></ul></div><canvas class="line-subchart" id="line-subcanvas' + (i + 1) + '"></canvas></div> ';
                     $('.rooms-chart').html(temphtml + temp);
                 }
             },
@@ -227,15 +229,28 @@ $(document).ready(function () {
             $(this).find('.date-val').val("1")
             $('.compare-date').each(function () {
                 if ($(this).find('.date-val').val() == "1") {
-                    dataOriginal = getChartData(new Date(), '', itr + 1);
-                    if ($(this).find('.custom_compare_date').val() == undefined || $(this).find('.custom_compare_date').val() == '') {
-                        dataSecondary = getChartData(new Date(), '', itr + 1);
+                    if (itr < 12) {
+                        dataOriginal = getChartData(new Date(), '', itr + 1);
+                        if ($(this).find('.custom_compare_date').val() == undefined || $(this).find('.custom_compare_date').val() == '') {
+                            dataSecondary = getChartData(new Date(), '', itr + 1);
+                        }
+                        else {
+                            tempdate = $(this).find('.custom_compare_date').val()
+                            dataSecondary = getChartData(new Date(tempdate.slice(0, 4), tempdate.slice(5, 7), tempdate.slice(8, 10)), '', itr + 1);
+                        }
+                        generateComapreChart(dataOriginal, dataSecondary, itr, tempdate);
                     }
                     else {
-                        tempdate = $(this).find('.custom_compare_date').val()
-                        dataSecondary = getChartData(new Date(tempdate.slice(0, 4), tempdate.slice(5, 7), tempdate.slice(8, 10)), '', itr + 1);
+                        dataOriginal = getSubChartData(new Date(), '', $(this).parent().parent().parent().find('.subgroup-name').text())
+                        if ($(this).find('.custom_compare_date').val() == undefined || $(this).find('.custom_compare_date').val() == '') {
+                            dataSecondary = getSubChartData(new Date(), '', $(this).parent().parent().parent().find('.subgroup-name').text());
+                        }
+                        else {
+                            tempdate = $(this).find('.custom_compare_date').val()
+                            dataSecondary = getSubChartData(new Date(tempdate.slice(0, 4), tempdate.slice(5, 7), tempdate.slice(8, 10)), '', $(this).parent().parent().parent().find('.subgroup-name').text());
+                        }
+                        generateComapreSubChart(dataOriginal, dataSecondary, itr - 12, tempdate)
                     }
-                    generateComapreChart(dataOriginal, dataSecondary, itr, tempdate);
                 }
                 itr++;
             })
@@ -249,9 +264,16 @@ $(document).ready(function () {
 
             $('.compare-date').each(function () {
                 if ($(this).find('.date-val').val() == "1") {
-                    dataOriginal = getChartData(new Date(), '', itr + 1)
-                    dataSecondary = getChartData(new Date(), '', itr + 1, locationidt)
-                    generateComapreChart(dataOriginal, dataSecondary, itr, -1, locationidt);
+                    if (itr < 12) {
+                        dataOriginal = getChartData(new Date(), '', itr + 1)
+                        dataSecondary = getChartData(new Date(), '', itr + 1, locationidt)
+                        generateComapreChart(dataOriginal, dataSecondary, itr, -1, locationidt);
+                    }
+                    else {
+                        dataOriginal = getSubChartData(new Date(), '', $(this).parent().parent().parent().find('.subgroup-name').text())
+                        dataSecondary = getSubChartData(new Date(), '', $(this).parent().parent().parent().find('.subgroup-name').text(), locationidt)
+                        generateComapreSubChart(dataOriginal, dataSecondary, itr - 12, -1, locationidt);
+                    }
                 }
                 itr++;
             });
@@ -280,10 +302,37 @@ $(document).ready(function () {
                 itr2_groupno = itr2_groupno + 1;
             }
             itr2_groupno = itr2_groupno - 133;
-            console.log(itr_groupno, itr2_groupno)
             dataOriginal = getChartData(new Date(), '', itr_groupno + 1);
             dataSecondary = getChartData(new Date(), '', itr2_groupno + 1);
             generateComapreChart(dataOriginal, dataSecondary, itr_groupno, -1, 0, temptext)
+        })
+        $('.subgroup-list').click(function () {
+            var itr = 0, itr_groupno = 0, itr2_groupno = 0, itr2 = 0;
+            var dataOriginal, dataSecondary;
+            var temptext = $(this).text();
+            $(this).parent().parent().parent().find('.date-val').val("1")
+
+            $('.compare-date').each(function () {
+                if ($(this).find('.date-val').val() == "1") {
+                    itr_groupno = itr;
+                }
+                itr++;
+            });
+            itr_groupno = itr_groupno - 12;
+            $(this).parent().parent().parent().find('.date-val').val("0");
+            $('.subgroup-list').each(function () {
+                if (temptext == $(this).text()) {
+                    itr2_groupno = itr2;
+                }
+                itr2++;
+            })
+            if (itr_groupno <= itr2_groupno) {
+                itr2_groupno = itr2_groupno + 1;
+            }
+            itr2_groupno = itr2_groupno - 290;
+            dataOriginal = getSubChartData(new Date(), '', $(this).parent().parent().parent().parent().parent().find('.subgroup-name').text());
+            dataSecondary = getSubChartData(new Date(), '', temptext);
+            generateComapreSubChart(dataOriginal, dataSecondary, itr_groupno, -1, 0, temptext)
         })
     }
     //Generate compare chart
@@ -298,6 +347,46 @@ $(document).ready(function () {
             lableOriginal = 'Location' + locationid;
             tempdate = 'Location' + locationidt
         }
+        if (secondarygroup) {
+            lableOriginal = 'Original';
+            tempdate = secondarygroup;
+        }
+        if (dataSecondary[2] == '' || dataSecondary[2] == undefined)
+            tempdate = 'Data Unavailable!';
+        var ajx = {
+            label: tempdate,
+            backgroundColor: window.chartColors.orange,
+            borderColor: window.chartColors.orange,
+            data: dataSecondary[1],
+            fill: false
+        };
+        line_config.data.datasets[1] = ajx;
+        ajx = {
+            label: lableOriginal,
+            backgroundColor: window.chartColors.blue,
+            borderColor: window.chartColors.blue,
+            data: dataOriginal[1],
+            fill: false
+        };
+        line_config.data.datasets[0] = ajx;
+        //ctx = alllinecharts[itr].getContext('2d')
+        //window.myLine = new Chart(ctx, line_config);
+        //linechartval[itr] = window.myLine;
+        linechartval[itr].update()
+        console.log("ihi", itr)
+    }
+    //Generate comapre sub charts
+    function generateComapreSubChart(dataOriginal, dataSecondary, itr, tempdate, locationidt, secondarygroup) {
+        line_config.data.labels = dataOriginal[0];
+        var lableOriginal = 'Original'
+        if (tempdate == -1)
+            tempdate = 'Previous';
+        if (locationidt) {
+            lableOriginal = 'Location' + locationid;
+            tempdate = 'Location' + locationidt
+        }
+        if (dataSecondary[2] == '' || dataSecondary[2] == undefined)
+            tempdate = 'Data Unavailable!';
         if (secondarygroup) {
             lableOriginal = 'Original';
             tempdate = secondarygroup;
@@ -318,12 +407,9 @@ $(document).ready(function () {
             fill: false
         };
         line_config.data.datasets[0] = ajx;
-        ctx = alllinecharts[itr].getContext('2d')
-        //window.myLine = new Chart(ctx, line_config);
-        //linechartval[itr] = window.myLine;
-        linechartval[itr].update()
+        //ctx = allsublinecharts[itr].getContext('2d')
+        sublinechartval[itr].update()
     }
-
     //Retrieving Chart Data
     function getChartData(date1, date2, grp_id, locationidt) {
         if (locationidt == undefined)
@@ -349,7 +435,8 @@ $(document).ready(function () {
                         labels[itr] = data[itr].time;
                         energy[itr] = data[itr].energy;
                     }
-                    grpname = data[0].group_name;
+                    if (data.length)
+                        grpname = data[0].group_name;
                 },
                 error: function (err) {
                     console.log("Error!!", err);
@@ -372,7 +459,8 @@ $(document).ready(function () {
                         else
                             energy[labels.indexOf(data[itr].dayname)] = energy[labels.indexOf(data[itr].dayname)] + data[itr].energy;
                     }
-                    grpname = data[0].group_name;
+                    if (data.length)
+                        grpname = data[0].group_name;
                 },
                 error: function (err) {
                     console.log("Error!!", err);
@@ -409,7 +497,8 @@ $(document).ready(function () {
                         else
                             energy[data[itr].day - 1] = energy[data[itr].day - 1] + data[itr].energy;
                     }
-                    grpname = data[0].group_name;
+                    if (data.length)
+                        grpname = data[0].group_name;
                 },
                 error: function (err) {
                     console.log("Error!!", err)
@@ -496,7 +585,10 @@ $(document).ready(function () {
         })
     }
     //Getting Sub Groups
-    function getSubChartData(date1, date2, subgroup_name) {
+    function getSubChartData(date1, date2, subgroup_name, locationidt) {
+        if (locationidt == undefined)
+            locationidt = locationid;
+        locationid = parseInt(locationid);
         if (typeof date1 != "string") {
             var dd = String(date1.getDate()).padStart(2, '0');
             var mm = String(date1.getMonth() + 1).padStart(2, '0'); //January is 0!
@@ -508,7 +600,7 @@ $(document).ready(function () {
         if (viewid == 0) {
             $.ajax({
                 type: 'POST',
-                data: { locationid: locationid, date: date1temp, subgroup_name: subgroup_name },
+                data: { locationid: locationidt, date: date1temp, subgroup_name: subgroup_name },
                 dataType: 'json',
                 url: '/getSubLinesData',
                 async: false,
@@ -517,7 +609,8 @@ $(document).ready(function () {
                         labels[itr] = data[itr].time.slice(11, 19);
                         energy[itr] = data[itr].energy;
                     }
-                    grpname = data[0].subgroup_name;
+                    if (data.length)
+                        grpname = data[0].subgroup_name;
                 },
                 error: function (err) {
                     console.log("Error!!", err);
@@ -529,7 +622,7 @@ $(document).ready(function () {
             labels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             $.ajax({
                 type: 'POST',
-                data: { locationid: locationid, weekid: date1temp.getWeek() - 1, subgroup_name: subgroup_name },
+                data: { locationid: locationidt, weekid: date1temp.getWeek() - 1, subgroup_name: subgroup_name },
                 dataType: 'json',
                 url: '/getWeeklySubLinesData',
                 async: false,
@@ -568,7 +661,7 @@ $(document).ready(function () {
             }
             $.ajax({
                 type: 'POST',
-                data: { locationid: locationid, monthid: mm, subgroup_name: subgroup_name },
+                data: { locationid: locationidt, monthid: mm, subgroup_name: subgroup_name },
                 dataType: 'json',
                 url: '/getMonthlySubLinesData',
                 async: false,
@@ -591,7 +684,7 @@ $(document).ready(function () {
         else if (viewid == 3 && (date2 == undefined || date2 == '')) {
             $.ajax({
                 type: 'POST',
-                data: { locationid: locationid, date: date1, subgroup_name: subgroup_name },
+                data: { locationid: locationidt, date: date1, subgroup_name: subgroup_name },
                 dataType: 'json',
                 url: '/getSubLinesData',
                 async: false,
@@ -619,7 +712,7 @@ $(document).ready(function () {
             }
             $.ajax({
                 type: 'POST',
-                data: { locationid: locationid, fromdate: date1, todate: date2, subgroup_name: subgroup_name },
+                data: { locationid: locationidt, fromdate: date1, todate: date2, subgroup_name: subgroup_name },
                 dataType: 'json',
                 url: '/getCustomSubLinesData',
                 async: false,
@@ -888,14 +981,27 @@ $(document).ready(function () {
         }
     }
 
+    //comparedrpli-list
+    function comparedrpli_function(i, selected_loc) {
+        dataOriginal = getChartData(new Date(), '', i, locationid);
+        dataSecondary = getChartData(new Date(), '', i, selected_loc)
+        console.log(dataOriginal, dataSecondary);
+        generateComapreChart(dataOriginal, dataSecondary, i - 1, -1, selected_loc);
+        if (i == group_count)
+            clearInterval(tempcomparedrpli);
+    }
+
     //load Compare btn data
     function loadComparebtnData() {
         $('.compare-location-list').each(function () {
             list = $(this)
             list.html('');
+            $('.comparedrpli-list').html('');
             for (i = 1; i <= totallocations; i++) {
-                if (i != locationid)
+                if (i != locationid) {
                     list.append('<li class="location-list">' + i + '</li>')
+                    $('.comparedrpli-list').append("<li class='comparedrpli-listli'>" + i + "<input type='hidden' class='stored_location_id' value='" + i + "'></li>")
+                }
             }
         })
         $('.compare-subgroup-list').each(function () {
@@ -912,17 +1018,65 @@ $(document).ready(function () {
                 list.append('<li class="group-list">' + $(this).text() + '</li>')
             })
         })
-
+        $('.comparedrpli-listli').click(function () {
+            var dataOriginal, dataSecondary;
+            var selected_loc = parseInt($(this).text().trim());
+            console.log(selected_loc)
+            var itr = 1, prev = -1;
+            tempcomparedrpli = setInterval(() => {
+                comparedrpli_function(itr, selected_loc);
+                itr++;
+            }, 2000);
+            console.log("finished")
+            $('subgroup-name').each(function () {
+                dataOriginal = getSubChartData(new Date(), '', $(this).text(), locationid);
+                dataSecondary = getSubChartData(new Date(), '', $(this).text(), selected_loc);
+                console.log(dataOriginal, dataSecondary)
+                generateComapreSubChart(dataOriginal, dataSecondary, itr, -1, selected_loc);
+                itr++;
+            })
+        })
+        $('.comparedrpli-view').click(function () {
+            var dataOriginal, dataSecondary;
+            if ($('.custom_comparedrpli_date').val() == undefined || $('.custom_comparedrpli_date').val() == '') {
+                for (i = 1; i <= group_count; i++) {
+                    dataOriginal = getChartData(new Date(), '', i, locationid);
+                    dataSecondary = getChartData(new Date(), '', i, locationid);
+                    generateComapreChart(dataOriginal, dataSecondary, i - 1, -1)
+                }
+                $('subgroup-name').each(function () {
+                    dataOriginal = getSubChartData(new Date(), '', $(this).text(), locationid);
+                    dataSecondary = getSubChartData(new Date(), '', $(this).text(), locationid);
+                    generateComapreSubChart(dataOriginal, dataSecondary, itr, -1);
+                    itr++;
+                })
+            }
+            else {
+                var itr = 0;
+                tempdate = $('.custom_comparedrpli_date').val();
+                for (i = 1; i <= group_count; i++) {
+                    dataOriginal = getChartData(new Date(), '', i, locationid);
+                    dataSecondary = getChartData(new Date(), '', i, locationid)
+                    generateComapreChart(dataOriginal, dataSecondary, i - 1, -1)
+                }
+                $('subgroup-name').each(function () {
+                    dataOriginal = getSubChartData(new Date(), '', $(this).text(), locationid);
+                    dataSecondary = getSubChartData(new Date(tempdate.slice(0, 4), tempdate.slice(5, 7), tempdate.slice(8, 10)), '', $(this).text(), locationid);
+                    generateComapreSubChart(dataOriginal, dataSecondary, itr, -1);
+                    itr++;
+                })
+            }
+        })
     }
     //Compare btn clicked
     function btnclicked() {
         $('.btn-compare').click(function () {
-            var cturn = $(this).parent().find('.compare-val').val();
+            var cturn = $(this).parent().parent().find('.compare-val').val();
             if (cturn % 2 == 0)
-                $(this).parent().find('.compare-area').css('display', 'block');
+                $(this).parent().parent().find('.compare-area').css('display', 'block');
             else
-                $(this).parent().find('.compare-area').css('display', 'none');
-            $(this).parent().find('.compare-val').val(parseInt(cturn) + 1);
+                $(this).parent().parent().find('.compare-area').css('display', 'none');
+            $(this).parent().parent().find('.compare-val').val(parseInt(cturn) + 1);
         })
     }
     //Refresh All
@@ -933,9 +1087,9 @@ $(document).ready(function () {
         formmatrix();
         createCharts();
         createSubCharts();
+        comparedata();
         loadComparebtnData();
         btnclicked();
-        comparedata();
     }
 
     //get week of date
@@ -983,4 +1137,32 @@ $(document).ready(function () {
         return dateArray;
     }
 
+    /**----------------------------------------Media Queries------------------------------------------------------- */
+    function mediaquery(x) {
+        if (x.matches || window.innerWidth <= 1300) {
+            $('.pie-chart').parent().attr('class', 'col col-sm-6 col-md-6');
+            $('.extra-column').attr('class', 'col col-sm-0 col-md-0 extra-column');
+            $('.extra-column').css('display', 'none');
+            $('.energy-efficiency').parent().attr('class', 'col col-sm-6 col-md-6');
+            $('.matrix-div').find('div').css('width', '140px');
+            $('.matrix-div').find('div').css('height', '110px');
+            $('.bolt').css('margin-top', '-100px');
+            $('.bolt').css('width', '30px');
+            $('.energy').css('top', '-50px');
+        }
+        else {
+            $('.pie-chart').parent().attr('class', 'col col-sm-6 col-md-4');
+            $('.extra-column').attr('class', 'col col-sm-6 col-md-3 extra-column');
+            $('.extra-column').css('display', 'block');
+            $('.energy-efficiency').parent().attr('class', 'col col-sm-6 col-md-5');
+            $('.matrix-div').find('div').css('width', '180px');
+            $('.matrix-div').find('div').css('height', '150px');
+            $('.bolt').css('margin-top', '0px');
+            $('.bolt').css('width', '50px');
+            $('.energy').css('margin-top', '0px');
+        }
+    }
+    var x = window.matchMedia("(max-width: 1300px)")
+    mediaquery(x)
+    x.addListener(mediaquery)
 })

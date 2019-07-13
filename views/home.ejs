@@ -30,10 +30,18 @@
                     <canvas id="pie-chart-area"></canvas>
                 </div>
             </div>
-            <div class="col col-sm-6 col-md-3">Extra</div>
+            <div class="col col-sm-4 col-md-3 extra-column">Extra</div>
+
+            <div class="col col-sm-4 col-md-5">
+                <div class="energy-efficiency">
+                    <canvas class="efficiency-chart" id="efficiency-chart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row container-fluid">
             <div class="col col-sm-4 col-md-2 alert-column">
                 <span class="red-text">Alerts</span>
-                <marquee direction="up" class="alert-marquee" scrollamount="2" onmouseover="this.stop();"
+                <marquee direction="up" class="alert-marquee" scrollamount="4" onmouseover="this.stop();"
                     onmouseout="this.start();">
                     <ul>
                         <li>
@@ -59,15 +67,8 @@
                     </ul>
                 </marquee>
             </div>
-            <div class="col col-sm-4 col-md-3">
-                <div class="energy-efficiency">
-                    <canvas class="efficiency-chart" id="efficiency-chart"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="row container-fluid">
-            <div class="col col-sm-12 col-md-7 matrix-area">MAtrix here</div>
-            <div class="col col-sm-12 col-md-5 display-flex-col">
+            <div class="col col-sm-12 col-md-6 matrix-area">MAtrix here</div>
+            <div class="col col-sm-12 col-md-4 display-flex-col">
                 <div class="current_view">View :
                     <span class="view_text"> DAILY</span>
                 </div>

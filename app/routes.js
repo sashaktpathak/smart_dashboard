@@ -75,7 +75,7 @@ module.exports = function (app, passport) {
                         u_type = 0
                         console.log("sfds")
                     }
-                    var insertQuery = "INSERT INTO users(username, password, type) VALUES(?, ?, ?)"
+                    var insertQuery = "INSERT INTO users(username, password, type, active) VALUES(?, ?, ?, 1)"
                     connection.query(insertQuery, [newUserMysql.username, newUserMysql.password, u_type],
                         (err, rows) => {
                             newUserMysql.id = rows.insertId;
@@ -84,7 +84,14 @@ module.exports = function (app, passport) {
                 }
             })
     })
-
+    app.post('/getUsersProperty', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("SELECT * FROM user_property order by id", (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
     let reqPath = path.join(__dirname, '../')
     app.get('/', isLoggedIn, function (req, res) {
         res.render('home', { name: req.user.username })
@@ -161,6 +168,22 @@ module.exports = function (app, passport) {
             res.send(rows)
         })
     })
+    app.post('/deleteUserProperty', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("delete from user_property where user_id = ? and locationid = ?", [req.body.user_id, req.body.locationid], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/insertUserProperty', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("insert into user_property(user_id, locationid) values(?,?)", [req.body.user_id, req.body.locationid], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
     app.post('/getMonthlyData', function (req, res) {
         connection.query('USE ' + dbconfig.database)
         connection.query("select sum(energy) as total, day(time) as day from energy where location = ? and group_id = ? and month(time) = ? group by day(time)", [req.body.locationid, req.body.groupid, req.body.weekid], (err, rows, fields) => {
@@ -201,7 +224,80 @@ module.exports = function (app, passport) {
             res.send(rows)
         })
     })
+    app.post('/admin@allusers', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query('SELECT id,username,type,active FROM users', (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
 
+    })
+    app.post('/admin@deluser', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query('DELETE FROM users where id = ?', [req.body.id], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send("Success")
+        })
+
+    })
+    app.post('/admin@deactivate', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query('UPDATE users SET active = 0 where id = ?', [req.body.id], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send("Success")
+        })
+
+    })
+    app.post('/admin@activate', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query('UPDATE users SET active = 1 where id = ?', [req.body.id], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send("Success")
+        })
+
+    })
+    app.post('/apply_changes@password', function (req, res) {
+        var npswd = bcrypt.hashSync(req.body.npwd, null, null)
+        connection.query('USE ' + dbconfig.database)
+        connection.query('UPDATE users SET password = ? WHERE id = ?', [npswd, req.body.id], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send("Success")
+        })
+    })
+    app.post('/adduser', function (req, res) {
+        connection.query('SELECT * FROM users where username = ?',
+            [req.body.username], function (err, rows) {
+                if (err)
+                    console.log(err)
+                if (rows.length) {
+                    console.log("length error!")
+                }
+                else {
+                    var newUserMysql = {
+                        username: req.body.username,
+                        password: bcrypt.hashSync(req.body.password, null, null)
+
+                    }
+                    var u_type = 1;
+                    console.log('--=--=', req.body.type)
+                    if (req.body.type == 'true') {
+                        u_type = 0
+                        console.log("sfds")
+                    }
+                    var insertQuery = "INSERT INTO users(username, password, type) VALUES(?, ?, ?)"
+                    connection.query(insertQuery, [newUserMysql.username, newUserMysql.password, u_type],
+                        (err, rows) => {
+                            newUserMysql.id = rows.insertId;
+                            res.send("Success")
+                        })
+                }
+            })
+    })
     app.post('/getWeeklyLinesData', function (req, res) {
         connection.query('USE ' + dbconfig.database)
         connection.query("select g.group_name, g.group_id,dayname(e.time) as dayname, e.energy from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? and e.group_id = ? and week(time) = ? order by e.time desc;", [req.body.locationid, req.body.group_id, req.body.weekid], (err, rows, fields) => {

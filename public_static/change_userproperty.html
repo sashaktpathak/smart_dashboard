@@ -1,0 +1,37 @@
+<h2>Change Users access</h2>
+<div class="container">
+    <table id="tb_users_access" class="datatable table table-bordered table-striped">
+        <tr>
+            <th>S. NO.</th>
+            <th>User Name</th>
+            <th>User Type</th>
+            <th>Change Access</th>
+        </tr>
+    </table>
+</div>
+<div id="changeaccessmodal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Change User Access</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tb_users_access_modal" class="datatable table table-bordered table-striped">
+                    <tr>
+                        <th>S. NO.</th>
+                        <th>Location</th>
+                        <th>View</th>
+                    </tr>
+                </table>
+                <input type="hidden" class="edit_user_id_access" value="3" name="edit_user_id_access">
+
+                <button class="btn btn-applyaccesschanges btn-succcess btn-lg">Apply Changes</button>
+
+            </div>
+        </div>
+
+    </div>
+</div>

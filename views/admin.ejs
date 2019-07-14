@@ -67,7 +67,8 @@
             background: #222D32;
         }
 
-        .btn-change-password {
+        .btn-change-password,
+        .btn-change-access {
             cursor: pointer;
         }
     </style>
@@ -145,6 +146,14 @@
                 <li class=" treeview" name="active_users" id="active_users">
                     <a href="#">
                         <i class="fa fa-user"></i> <span>Active/Inactive Users</span>
+                        <span class="pull-right-container">
+                        </span>
+                    </a>
+
+                </li>
+                <li class=" treeview" name="change_users_access" id="change_users_access">
+                    <a href="#">
+                        <i class="fa fa-user"></i> <span>Change Users Access</span>
                         <span class="pull-right-container">
                         </span>
                     </a>
@@ -253,11 +262,20 @@
                     alert("Password not Matched!!")
                 }
             })
+            $('.btn-generatepassword1').click(function () {
+                var randomstring = Math.random().toString(36).slice(-8);
+                $('.pswd').val(randomstring);
+                $('.cnfpswd').val(randomstring);
+            })
         })
     }
     activeusers()
     $('#adduser').click(function () {
         $('.list_user').load('add_users.html', function () {
+            $('.btn-generatepassword').click(function () {
+                var randomstring = Math.random().toString(36).slice(-8);
+                $('.password').val(randomstring);
+            })
             $('.btn-adduser').click(function () {
                 $.post('/adduser', { username: $('.username').val(), password: $('.password').val(), type: $('.admincheck').is(':checked') }, function (data) {
                     console.log(data)
@@ -372,6 +390,109 @@
             }
         })
     }
+    function list_user_access() {
+        $.post('/admin@allusers', function (data) {
+            var i_count = 1
+            for (i = 0; i < data.length; i++) {
+                if (data[i].id != id_url) {
+                    if (data[i].type)
+                        user_type = 'Normal User'
+                    else
+                        user_type = 'Administrator'
+                    var ro = '<tr><td>' + (i_count) + '<input type="hidden" class="useridd" value="' + data[i].id + '"></td><td>' + data[i].username + '</td><td>' + user_type + '</td><td><a class="btn-change-access" data-toggle="modal" data-target="#changeaccessmodal" > Change Access</a ></td></tr>'
+                    $('#tb_users_access tr:last').after(ro)
+                    i_count++
+                }
+            }
+            $('.btn-change-access').click(function () {
+                //console.log($(this).parent().parent().find('.useridd').val())
+                $('.edit_user_id_access').val($(this).parent().parent().find('.useridd').val())
+                $('#tb_users_access_modal').html('<tbody><tr><th>S. NO.</th><th>Location</th><th>View</th></tr></tbody>');
+                $.ajax({
+                    type: 'GET',
+                    data: {},
+                    dataType: 'json',
+                    async: false,
+                    url: '/getLocations',
+                    success: function (data) {
+                        var i_count = 1;
+                        for (i = 0; i < data.length; i++) {
+                            var ro = '<tr><td>' + (i_count) + '</td><td>' + data[i].location + '</td><td><input type="checkbox" class="userlocation_id" name="userlocation_id" value="' + data[i].id + '"></td></tr>'
+                            $('#tb_users_access_modal tr:last').after(ro)
+                            $.ajax({
+                                type: 'POST',
+                                data: {},
+                                dataType: 'json',
+                                async: false,
+                                url: '/getUsersProperty',
+                                success: function (datanew) {
+                                    for (j = 0; j < datanew.length; j++) {
+                                        if (parseInt($('.edit_user_id_access').val()) == parseInt(datanew[j].user_id)) {
+                                            if (data[i].id == datanew[j].locationid) {
+                                                var checkbox = $('.userlocation_id:last');
+                                                $('.userlocation_id:last').prop('checked', !checkbox.prop('checked'));
+                                            }
+                                        }
+                                    }
+                                },
+                                error: function (err) {
+                                    console.log("Error!", err);
+                                }
+                            })
+                            i_count++
+
+                        }
+                    },
+                    error: function (err) {
+                        console.log("Error!!", err);
+                    }
+                })
+            })
+            $('.btn-applyaccesschanges').click(function () {
+                var flag = 0, itr = 0;
+                $(this).parent().find('.userlocation_id').each(function () {
+                    itr++;
+                    if (!$(this).prop("checked")) {
+                        $.ajax({
+                            type: 'POST',
+                            data: { user_id: $('.edit_user_id_access').val(), locationid: $(this).val() },
+                            dataType: 'json',
+                            async: false,
+                            url: '/deleteUserProperty',
+                            success: function () {
+                                flag++;
+                            },
+                            error: function () {
+                                console.log("Error!!");
+                            }
+                        });
+                    }
+                    else {
+                        $.ajax({
+                            type: 'POST',
+                            data: { user_id: $('.edit_user_id_access').val(), locationid: $(this).val() },
+                            dataType: 'json',
+                            async: false,
+                            url: '/insertUserProperty',
+                            success: function () {
+                                flag++;
+                            },
+                            error: function () {
+                                console.log("Error!!");
+                            }
+                        });
+                    }
+                })
+                if (flag == itr)
+                    alert("Changed Successfully!!");
+            })
+        })
+    }
+    $('#change_users_access').click(function () {
+        $('.list_user').load('change_userproperty.html', function () {
+            list_user_access();
+        });
+    })
     $('#dashboard').click(function () {
         $('.list_user').load('list_users.html', function () {
             activeusers()

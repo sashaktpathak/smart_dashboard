@@ -193,7 +193,7 @@ CREATE TABLE `user_property` (
   `user_id` int(11) DEFAULT NULL,
   `locationid` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -202,7 +202,7 @@ CREATE TABLE `user_property` (
 
 LOCK TABLES `user_property` WRITE;
 /*!40000 ALTER TABLE `user_property` DISABLE KEYS */;
-INSERT INTO `user_property` VALUES (1,1,1),(7,3,1);
+INSERT INTO `user_property` VALUES (12,1,1),(13,1,2),(14,1,3),(16,3,1);
 /*!40000 ALTER TABLE `user_property` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -242,4 +242,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-07-15  0:40:22
+-- Dump completed on 2019-07-15 16:27:41

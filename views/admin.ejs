@@ -483,8 +483,10 @@
                         });
                     }
                 })
-                if (flag == itr)
+                if (flag == itr) {
                     alert("Changed Successfully!!");
+                    $('#changeaccessmodal').modal('toggle');
+                }
             })
         })
     }

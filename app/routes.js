@@ -94,7 +94,7 @@ module.exports = function (app, passport) {
     })
     let reqPath = path.join(__dirname, '../')
     app.get('/', isLoggedIn, function (req, res) {
-        res.render('home', { name: req.user.username })
+        res.render('home', { name: req.user.username, user_id: req.user.id })
     })
 
     //app.use('/home', express.static(reqPath + 'public_static'))
@@ -178,10 +178,17 @@ module.exports = function (app, passport) {
     })
     app.post('/insertUserProperty', function (req, res) {
         connection.query('USE ' + dbconfig.database)
-        connection.query("insert into user_property(user_id, locationid) values(?,?)", [req.body.user_id, req.body.locationid], (err, rows, fields) => {
-            if (err)
-                console.log(err)
-            res.send(rows)
+        connection.query("select * from user_property where user_id = ? and locationid = ?", [req.body.user_id, req.body.locationid], (err1, rows1, fields1) => {
+            if (!rows1.length) {
+                connection.query("insert into user_property(user_id, locationid) values(?,?)", [req.body.user_id, req.body.locationid], (err, rows, fields) => {
+                    if (err)
+                        console.log(err)
+                    res.send(rows)
+                })
+            }
+            else {
+                res.send(rows1)
+            }
         })
     })
     app.post('/getMonthlyData', function (req, res) {

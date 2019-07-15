@@ -25,9 +25,28 @@ $(document).ready(function () {
             async: false,
             success: function (data) {
                 locationid = data[0].id;
-                for (t = 0; t < data.length; t++) {
-                    $('.drpmn').append("<li class='drpmnli'>" + data[t].location + "<input type='hidden' class='stored_location_id' value='" + data[t].id + "'></li>")
-                }
+                console.log($('.passed_user_id').val())
+                $.ajax({
+                    type: 'POST',
+                    data: {},
+                    dataType: 'json',
+                    url: '/getUsersProperty',
+                    async: false,
+                    success: function (datanew) {
+                        for (j = 0; j < datanew.length; j++) {
+                            if ((datanew[j].user_id == $('.passed_user_id').val())) {
+                                for (t = 0; t < data.length; t++) {
+                                    if ((datanew[j].locationid == data[t].id)) {
+                                        $('.drpmn').append("<li class='drpmnli'>" + data[t].location + "<input type='hidden' class='stored_location_id' value='" + data[t].id + "'></li>")
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    error: function () {
+                        console.log("Errorr!!");
+                    }
+                })
                 totallocations = data.length;
             },
             error: function (err) {
@@ -1067,6 +1086,8 @@ $(document).ready(function () {
                 })
             }
         })
+
+        scrollGroup();
     }
     //Compare btn clicked
     function btnclicked() {
@@ -1079,6 +1100,31 @@ $(document).ready(function () {
             $(this).parent().parent().find('.compare-val').val(parseInt(cturn) + 1);
         })
     }
+    //Scroll Group btn
+    function scrollGroup() {
+        $('.group-btn').click(function () {
+            var count, tmpcount = 1;
+            var text = ".group"
+            var clickedgroup = $(this).text()
+            $('.group-btn').each(function () {
+                if ($(this).text() == clickedgroup) {
+                    count = tmpcount
+                }
+                tmpcount++;
+            })
+            text = text + count;
+            $('html, body').animate({
+                scrollTop: $(text).offset().top
+            }, 2000);
+            var classlist = $(text).attr('class')
+            var tempclasslist = classlist + ' orangediv'
+            $(text).attr('class', tempclasslist)
+            setTimeout(() => {
+                $(text).attr('class', classlist)
+            }, 4000)
+        })
+    }
+
     //Refresh All
     function RefreshAll() {
         if (line_config.data.datasets.length > 1)

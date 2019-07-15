@@ -7,9 +7,10 @@ var scrollOff = 0;
 var linechartval = [], sublinechartval = [];
 var alllinecharts = [], allsublinecharts = [];
 var tempcomparedrpli;
+var latlong = [[28.7041, 77.1025], [28.4595, 77.0266], [12.971, 77.594]];
 $(document).ready(function () {
     /** -----------------------------Map Formation-------------------------------------------------- */
-    var map = L.map('map-area').setView([28.7041, 77.1025], 8);
+    var map = L.map('map-area').setView([28.7041, 77.1025], 4);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -26,7 +27,6 @@ $(document).ready(function () {
             async: false,
             success: function (data) {
                 locationid = data[0].id;
-                console.log($('.passed_user_id').val())
                 $.ajax({
                     type: 'POST',
                     data: {},
@@ -39,6 +39,10 @@ $(document).ready(function () {
                                 for (t = 0; t < data.length; t++) {
                                     if ((datanew[j].locationid == data[t].id)) {
                                         $('.drpmn').append("<li class='drpmnli'>" + data[t].location + "<input type='hidden' class='stored_location_id' value='" + data[t].id + "'></li>")
+                                        locationmarker = new L.marker(latlong[t]);
+                                        locationmarker.addTo(map)
+                                            .bindPopup('<b>Location: </b>' + data[t].id)
+                                            .openPopup();
                                     }
                                 }
                             }
@@ -48,6 +52,7 @@ $(document).ready(function () {
                         console.log("Errorr!!");
                     }
                 })
+                map.panTo(new L.LatLng(20.5937, 78.9626))
                 totallocations = data.length;
             },
             error: function (err) {
@@ -238,7 +243,6 @@ $(document).ready(function () {
                 itr++;
             })
             $(this).text(temptext);
-            scrollOff = 0;
         })
         scrollGroup();
     }
@@ -1023,11 +1027,15 @@ $(document).ready(function () {
         }
         var energy_data22 = [];
         var background_data22 = [];
+        var temp_sum = 0;
         for (i = 0; i < grouplist.length; i++) {
             energy_data22[i] = energylist[grouplist[i]];
+            temp_sum += energy_data22[i];
             background_data22[i] = backgroundlist[i];
         }
-
+        for (i = 0; i < energy_data22.length; i++) {
+            energy_data22[i] = ((energy_data22[i] * 100) / temp_sum);
+        }
         var ajx = {
             data: energy_data22,
             backgroundColor: background_data22
@@ -1165,32 +1173,30 @@ $(document).ready(function () {
     }
     //Scroll Group btn
     function scrollGroup() {
-        setTimeout(() => {
+        $('.group-btn').click(function () {
             if (scrollOff == 0) {
-                $('.group-btn').click(function () {
-                    var count, tmpcount = 1;
-                    var text = ".group"
-                    var clickedgroup = $(this).text()
-                    $('.group-btn').each(function () {
-                        if ($(this).text() == clickedgroup) {
-                            count = tmpcount
-                        }
-                        tmpcount++;
-                    })
-                    text = text + count;
-                    $('html, body').animate({
-                        scrollTop: $(text).offset().top
-                    }, 2000);
-                    var classlist = $(text).attr('class')
-                    var tempclasslist = classlist + ' orangediv'
-                    $(text).attr('class', tempclasslist)
-                    setTimeout(() => {
-                        $(text).attr('class', classlist)
-                    }, 4000)
+                var count, tmpcount = 1;
+                var text = ".group"
+                var clickedgroup = $(this).text()
+                $('.group-btn').each(function () {
+                    if ($(this).text() == clickedgroup) {
+                        count = tmpcount
+                    }
+                    tmpcount++;
                 })
+                text = text + count;
+                $('html, body').animate({
+                    scrollTop: $(text).offset().top
+                }, 2000);
+                var classlist = $(text).attr('class')
+                var tempclasslist = classlist + ' orangediv'
+                $(text).attr('class', tempclasslist)
+                setTimeout(() => {
+                    $(text).attr('class', classlist)
+                }, 4000)
             }
-        }, 1000);
-
+            scrollOff = 0;
+        })
     }
 
     //Refresh All

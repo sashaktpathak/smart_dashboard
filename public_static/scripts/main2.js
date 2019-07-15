@@ -42,7 +42,7 @@ $(document).ready(function () {
                                         locationmarker = new L.marker(latlong[t]);
                                         locationmarker.addTo(map)
                                             .bindPopup('<b>Location: </b>' + data[t].id)
-                                            .openPopup();
+                                            .openPopup().on('click', changelocation);
                                     }
                                 }
                             }
@@ -1197,6 +1197,19 @@ $(document).ready(function () {
             }
             scrollOff = 0;
         })
+    }
+
+    //Map on click change location
+    function changelocation(e) {
+        var templatlng = [e.latlng.lat, e.latlng.lng];
+        console.log(templatlng)
+        for (i = 1; i <= totallocations; i++) {
+            console.log(latlong[i - 1])
+            if (latlong[i - 1][0] == templatlng[0] && latlong[i - 1][1] == templatlng[1]) {
+                locationid = i;
+                RefreshAll();
+            }
+        }
     }
 
     //Refresh All

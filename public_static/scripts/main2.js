@@ -3,6 +3,7 @@ var locationid;
 var totallocations = 0;
 var viewid = 0;
 var group_count = 0;
+var scrollOff = 0;
 var linechartval = [], sublinechartval = [];
 var alllinecharts = [], allsublinecharts = [];
 var tempcomparedrpli;
@@ -136,10 +137,10 @@ $(document).ready(function () {
                             btntype = 'high';
                     }
                     if (data[itr].subgroup == 0) {
-                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + data[itr].group_name + '</div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + data[itr].energy + ' Kwh.</strong ></div > ';
+                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + data[itr].group_name + '<input type="hidden" class="group-id" value="' + data[itr].group_id + '"></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + data[itr].energy + ' Kwh.</strong ></div > ';
                     }
                     else {
-                        temp = ' <div class="room group-btn ' + btntype + '"><div class="group-btn-title">' + data[itr].group_name + '</div><div class="subrooms"><ul class="room_list"><li class="all-room"><b>View All</b></li>';
+                        temp = ' <div class="room group-btn ' + btntype + '"><div class="group-btn-title">' + data[itr].group_name + '<input type="hidden" class="group-id" value="' + data[itr].group_id + '"></div><div class="subrooms"><ul class="room_list"><li class="all-room"><b>View All</b></li>';
                         $.ajax({
                             type: 'POST',
                             data: { location_id: locationid, parentgroup_id: data[itr].group_id },
@@ -171,11 +172,75 @@ $(document).ready(function () {
                     }
                     $('.matrix-div').html(temphtml + temp);
                 }
+
             },
             error: function (err) {
                 console.log("Error!! ", err)
             }
         })
+        $('.all-room').click(function () {
+            scrollOff = 1;
+            var temptext = $(this).text();
+            $(this).text('sometext');
+            var itr = 0;
+            $('.all-room').each(function () {
+                if ($(this).text() == 'sometext') {
+                    $('.room-matrix').html('<div class="back-btn">Go Back<br><br><img src="images/left-arrow.svg" class="goback-btn" width="70"></div>')
+                    var group_idtemp = $(this).parent().parent().parent().find('.group-id').val();
+                    $('.matrix-div').css('display', 'none');
+                    $('.room-matrix').css('display', 'flex');
+                    $.ajax({
+                        type: 'POST',
+                        data: { location_id: locationid, parentgroup_id: group_idtemp },
+                        dataType: 'json',
+                        url: '/getSubGroupsCount',
+                        async: false,
+                        success: function (datacount) {
+                            $.ajax({
+                                type: 'POST',
+                                dataType: 'json',
+                                data: { location_id: locationid, parentgroup_id: group_idtemp, sgcount: datacount[0].sgcount },
+                                url: '/getSubGroups',
+                                async: false,
+                                success: function (datanew) {
+                                    for (var itr2 = 0; itr2 < datanew.length; itr2++) {
+                                        var btntype = '', imagetype = '';
+                                        if (datanew[itr2].status == 0) {
+                                            imagetype = 'lightning-low.svg';
+                                            btntype = 'inactive';
+                                        }
+                                        else {
+                                            imagetype = 'lightning.svg'
+                                            if (datanew[itr2].energy == 0)
+                                                btntype = 'low';
+                                            else
+                                                btntype = 'high';
+                                        }
+                                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + datanew[itr2].subgroup_name + '</div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + datanew[itr2].energy + ' Kwh.</strong ></div > ';
+                                        var temphtml = $('.room-matrix').html();
+                                        $('.room-matrix').html(temphtml + temp);
+                                    }
+                                    $('.back-btn').click(function () {
+                                        $('.matrix-div').css('display', 'flex');
+                                        $('.room-matrix').css('display', 'none');
+                                    })
+                                },
+                                error: function (err) {
+                                    console.log("Error!!", err);
+                                }
+                            })
+                        },
+                        error: function (err) {
+                            console.log("Error!!", err);
+                        }
+                    })
+                }
+                itr++;
+            })
+            $(this).text(temptext);
+            scrollOff = 0;
+        })
+        scrollGroup();
     }
     //creating groups chart
     function createCharts() {
@@ -1086,8 +1151,6 @@ $(document).ready(function () {
                 })
             }
         })
-
-        scrollGroup();
     }
     //Compare btn clicked
     function btnclicked() {
@@ -1102,27 +1165,32 @@ $(document).ready(function () {
     }
     //Scroll Group btn
     function scrollGroup() {
-        $('.group-btn').click(function () {
-            var count, tmpcount = 1;
-            var text = ".group"
-            var clickedgroup = $(this).text()
-            $('.group-btn').each(function () {
-                if ($(this).text() == clickedgroup) {
-                    count = tmpcount
-                }
-                tmpcount++;
-            })
-            text = text + count;
-            $('html, body').animate({
-                scrollTop: $(text).offset().top
-            }, 2000);
-            var classlist = $(text).attr('class')
-            var tempclasslist = classlist + ' orangediv'
-            $(text).attr('class', tempclasslist)
-            setTimeout(() => {
-                $(text).attr('class', classlist)
-            }, 4000)
-        })
+        setTimeout(() => {
+            if (scrollOff == 0) {
+                $('.group-btn').click(function () {
+                    var count, tmpcount = 1;
+                    var text = ".group"
+                    var clickedgroup = $(this).text()
+                    $('.group-btn').each(function () {
+                        if ($(this).text() == clickedgroup) {
+                            count = tmpcount
+                        }
+                        tmpcount++;
+                    })
+                    text = text + count;
+                    $('html, body').animate({
+                        scrollTop: $(text).offset().top
+                    }, 2000);
+                    var classlist = $(text).attr('class')
+                    var tempclasslist = classlist + ' orangediv'
+                    $(text).attr('class', tempclasslist)
+                    setTimeout(() => {
+                        $(text).attr('class', classlist)
+                    }, 4000)
+                })
+            }
+        }, 1000);
+
     }
 
     //Refresh All
@@ -1211,4 +1279,7 @@ $(document).ready(function () {
     var x = window.matchMedia("(max-width: 1300px)")
     mediaquery(x)
     x.addListener(mediaquery)
+
+    //=======================================================================================================
+    $(".custom_date").datepicker();
 })

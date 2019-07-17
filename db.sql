@@ -83,6 +83,8 @@ DROP TABLE IF EXISTS `locations`;
 CREATE TABLE `locations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `location` text,
+  `longitude` double DEFAULT NULL,
+  `latitude` double DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -93,7 +95,7 @@ CREATE TABLE `locations` (
 
 LOCK TABLES `locations` WRITE;
 /*!40000 ALTER TABLE `locations` DISABLE KEYS */;
-INSERT INTO `locations` VALUES (1,'DELHI'),(2,'GURUGRAM'),(3,'BANGLORE');
+INSERT INTO `locations` VALUES (1,'DELHI',77.1025,28.7041),(2,'GURUGRAM',77.0266,28.4595),(3,'BANGLORE',77.594,12.971);
 /*!40000 ALTER TABLE `locations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -193,7 +195,7 @@ CREATE TABLE `user_property` (
   `user_id` int(11) DEFAULT NULL,
   `locationid` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -202,7 +204,7 @@ CREATE TABLE `user_property` (
 
 LOCK TABLES `user_property` WRITE;
 /*!40000 ALTER TABLE `user_property` DISABLE KEYS */;
-INSERT INTO `user_property` VALUES (12,1,1),(13,1,2),(14,1,3),(16,3,1);
+INSERT INTO `user_property` VALUES (12,1,1),(16,3,1),(17,1,2);
 /*!40000 ALTER TABLE `user_property` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -229,7 +231,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'sashakt','$2a$10$X/NxYBznzWOce/uUvNfm7ewg3nkjrRr7/ZaCVpg/YTCy6ZN4mIZ7O',1,1),(2,'admin','$2a$10$0pBIGuR507.A9iKRXiLPyez0ADvUt7C84psuFQgKvKKc.Kgwn5zSu',0,1),(3,'try1','$2a$10$K9OGVZ6JiFBDsXDphuSG4erJAYlmwcwfNbjWnX3XSXDS5HKK9dA/e',0,1);
+INSERT INTO `users` VALUES (1,'sashakt','$2a$10$X/NxYBznzWOce/uUvNfm7ewg3nkjrRr7/ZaCVpg/YTCy6ZN4mIZ7O',1,1),(2,'admin','$2a$10$0pBIGuR507.A9iKRXiLPyez0ADvUt7C84psuFQgKvKKc.Kgwn5zSu',0,1),(3,'try1','$2a$10$.R7GrybkAR7KX0MjiO38NO2fTW4mM2b1/u31espBy7icLfsHeCWr6',0,1);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -242,4 +244,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-07-15 16:27:41
+-- Dump completed on 2019-07-17 19:49:44

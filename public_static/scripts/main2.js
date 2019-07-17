@@ -7,7 +7,7 @@ var scrollOff = 0;
 var linechartval = [], sublinechartval = [];
 var alllinecharts = [], allsublinecharts = [];
 var tempcomparedrpli;
-var latlong = [[28.7041, 77.1025], [28.4595, 77.0266], [12.971, 77.594]];
+var latlong = [];
 $(document).ready(function () {
     /** -----------------------------Map Formation-------------------------------------------------- */
     var map = L.map('map-area').setView([28.7041, 77.1025], 4);
@@ -34,12 +34,15 @@ $(document).ready(function () {
                     url: '/getUsersProperty',
                     async: false,
                     success: function (datanew) {
+                        latlong = [];
                         for (j = 0; j < datanew.length; j++) {
                             if ((datanew[j].user_id == $('.passed_user_id').val())) {
                                 for (t = 0; t < data.length; t++) {
                                     if ((datanew[j].locationid == data[t].id)) {
                                         $('.drpmn').append("<li class='drpmnli'>" + data[t].location + "<input type='hidden' class='stored_location_id' value='" + data[t].id + "'></li>")
-                                        locationmarker = new L.marker(latlong[t]);
+                                        var temploc = [data[t].latitude, data[t].longitude];
+                                        locationmarker = new L.marker(temploc);
+                                        latlong.push(temploc);
                                         locationmarker.addTo(map)
                                             .bindPopup('<b>Location: </b>' + data[t].id)
                                             .openPopup().on('click', changelocation);
@@ -52,7 +55,14 @@ $(document).ready(function () {
                         console.log("Errorr!!");
                     }
                 })
-                map.panTo(new L.LatLng(20.5937, 78.9626))
+                var tempsumlat = 0, tempsumlong = 0;
+                for (it = 0; it < latlong.length; it++) {
+                    tempsumlat += latlong[it][0];
+                    tempsumlong += latlong[it][1];
+                }
+                tempsumlat /= latlong.length;
+                tempsumlong /= latlong.length;
+                map.panTo(new L.LatLng(tempsumlat, tempsumlong));
                 totallocations = data.length;
             },
             error: function (err) {
@@ -461,7 +471,6 @@ $(document).ready(function () {
         //window.myLine = new Chart(ctx, line_config);
         //linechartval[itr] = window.myLine;
         linechartval[itr].update()
-        console.log("ihi", itr)
     }
     //Generate comapre sub charts
     function generateComapreSubChart(dataOriginal, dataSecondary, itr, tempdate, locationidt, secondarygroup) {
@@ -1077,7 +1086,6 @@ $(document).ready(function () {
     function comparedrpli_function(i, selected_loc) {
         dataOriginal = getChartData(new Date(), '', i, locationid);
         dataSecondary = getChartData(new Date(), '', i, selected_loc)
-        console.log(dataOriginal, dataSecondary);
         generateComapreChart(dataOriginal, dataSecondary, i - 1, -1, selected_loc);
         if (i == group_count)
             clearInterval(tempcomparedrpli);
@@ -1113,17 +1121,14 @@ $(document).ready(function () {
         $('.comparedrpli-listli').click(function () {
             var dataOriginal, dataSecondary;
             var selected_loc = parseInt($(this).text().trim());
-            console.log(selected_loc)
             var itr = 1, prev = -1;
             tempcomparedrpli = setInterval(() => {
                 comparedrpli_function(itr, selected_loc);
                 itr++;
             }, 2000);
-            console.log("finished")
             $('subgroup-name').each(function () {
                 dataOriginal = getSubChartData(new Date(), '', $(this).text(), locationid);
                 dataSecondary = getSubChartData(new Date(), '', $(this).text(), selected_loc);
-                console.log(dataOriginal, dataSecondary)
                 generateComapreSubChart(dataOriginal, dataSecondary, itr, -1, selected_loc);
                 itr++;
             })
@@ -1202,9 +1207,7 @@ $(document).ready(function () {
     //Map on click change location
     function changelocation(e) {
         var templatlng = [e.latlng.lat, e.latlng.lng];
-        console.log(templatlng)
         for (i = 1; i <= totallocations; i++) {
-            console.log(latlong[i - 1])
             if (latlong[i - 1][0] == templatlng[0] && latlong[i - 1][1] == templatlng[1]) {
                 locationid = i;
                 RefreshAll();
@@ -1299,6 +1302,4 @@ $(document).ready(function () {
     mediaquery(x)
     x.addListener(mediaquery)
 
-    //=======================================================================================================
-    $(".custom_date").datepicker();
 })

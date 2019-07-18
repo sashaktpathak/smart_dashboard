@@ -33,7 +33,8 @@ var pie_config = {
     options: {
         responsive: true,
         legend: {
-            display: true
+            display: true,
+            position: 'left'
         },
     }
 };

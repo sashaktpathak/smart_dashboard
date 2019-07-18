@@ -360,3 +360,15 @@ html, body
     }
 
 }
+/**-------------------------Webhism calender gadget-----------------------------------------*/
+.ws-empty {
+    display: none !important;
+}
+
+.hide-replaced.ws-inputreplace {
+    display: none !important;
+}
+.ws-inline-picker
+{
+    min-width: 100%  !important;
+}

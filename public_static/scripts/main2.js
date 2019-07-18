@@ -8,9 +8,22 @@ var linechartval = [], sublinechartval = [];
 var alllinecharts = [], allsublinecharts = [];
 var tempcomparedrpli;
 var latlong = [];
+var today_date = '';
+var selected_date = '';
 $(document).ready(function () {
+    /*-----------------------------------Get Today's Date--------------------------------------------*/
+    function getTodayDate() {
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = today.getFullYear();
+        today = yyyy + '-' + mm + '-' + dd;
+        today_date = selected_date = today;
+        $('.date_text').text(today_date);
+    }
+    getTodayDate();
     /** -----------------------------Map Formation-------------------------------------------------- */
-    var map = L.map('map-area').setView([28.7041, 77.1025], 4);
+    var map = L.map('map-area').setView([28.7041, 77.1025], 8);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -45,7 +58,7 @@ $(document).ready(function () {
                                         latlong.push(temploc);
                                         locationmarker.addTo(map)
                                             .bindPopup('<b>Location: </b>' + data[t].id)
-                                            .openPopup().on('click', changelocation);
+                                            .on('click', changelocation);
                                     }
                                 }
                             }
@@ -73,6 +86,7 @@ $(document).ready(function () {
         $('.matrix-area').load('matrix.html', function () {
             getGroupCount();
             createBarandPieChart();
+            generatePieCharts();
             formmatrix();
             createCharts();
             createSubCharts();
@@ -111,6 +125,12 @@ $(document).ready(function () {
             RefreshAll();
             $('.view_text').html(text)
         })
+        /**-------------------------------------On Date Change-------------------------------------------------------- */
+        $('.global-date').on('change', function (e) {
+            selected_date = webshim.format.date($.prop(e.target, 'value'));
+            $('.date_text').text(selected_date)
+        })
+
     })
     /**------------------------------------loading footer--------------------------------------------- */
     $('footer').load('footer.html')
@@ -312,6 +332,9 @@ $(document).ready(function () {
             barChartData.datasets[grp_id - 1].label = chartdata[2];
             window.mybar.update();
         }
+    }
+    //Generate pie chart
+    function generatePieCharts() {
         if (viewid != 3)
             piechartdata(new Date(2019, 5, 28), '');
         else
@@ -1227,6 +1250,23 @@ $(document).ready(function () {
         loadComparebtnData();
         btnclicked();
     }
+    //webhism Calender gadget
+
+    webshim.setOptions('forms-ext', {
+        replaceUI: 'auto',
+        types: 'date',
+        date: {
+            startView: 2,
+            inlinePicker: true,
+            classes: 'hide-inputbtns'
+        }
+    });
+    webshim.setOptions('forms', {
+        lazyCustomMessages: true
+    });
+    //start polyfilling
+    webshim.polyfill('forms forms-ext');
+
 
     //get week of date
     Date.prototype.getWeek = function (dowOffset) {

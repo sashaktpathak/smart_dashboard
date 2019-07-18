@@ -38,7 +38,7 @@ var pie_config = {
         },
         title: {
             display: true,
-            text: 'Premise Energy'
+            text: ['Premise Energy Usage', 'Group wise energy breakup of selected premise for monitored time']
         }
     }
 };

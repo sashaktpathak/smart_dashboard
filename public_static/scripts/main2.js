@@ -131,6 +131,7 @@ $(document).ready(function () {
             selected_date = webshim.format.date($.prop(e.target, 'value'));
             selected_date_formatted = new Date(selected_date.slice(0, 4), selected_date.slice(5, 7) - 1, selected_date.slice(8, 10));
             $('.date_text').text(selected_date)
+            $('#calenderModal').modal('toggle');
             RefreshAll();
         })
 
@@ -1284,8 +1285,10 @@ $(document).ready(function () {
         for (i = 1; i <= totallocations; i++) {
             if (latlong[i - 1][0] == templatlng[0] && latlong[i - 1][1] == templatlng[1]) {
                 locationid = i;
-                RefreshAll();
             }
+            var location_clicked = parseInt(e.target._popup._content.slice(17, 20));
+            $('.location_text').text($('.drpmnli')[location_clicked - 1].innerText)
+            RefreshAll();
         }
     }
 

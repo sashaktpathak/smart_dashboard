@@ -261,7 +261,7 @@ var bar_config2 = {
         },
         title: {
             display: true,
-            text: 'Energy Efficiency Chart',
+            text: 'Relative Energy Chart',
             fontSize: 15,
         }
     }

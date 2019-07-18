@@ -151,37 +151,88 @@ $(document).ready(function () {
     }
     //Forming Matrix
     function formmatrix() {
+        var date1temp1, date2temp1;
+        if (viewid == 0) {
+            date1temp1 = selected_date;
+            date2temp1 = selected_date;
+        }
+        else if (viewid == 1) {
+            date1temp1 = getSunday(selected_date_formatted);
+            date2temp1 = getSaturday(selected_date_formatted);
+            dd = String(date1temp1.getDate()).padStart(2, '0');
+            mm = String(date1temp1.getMonth() + 1).padStart(2, '0');
+            yyyy = date1temp1.getFullYear();
+            date1temp1 = yyyy + '-' + mm + '-' + dd;
+            dd = String(date2temp1.getDate()).padStart(2, '0');
+            mm = String(date2temp1.getMonth() + 1).padStart(2, '0');
+            yyyy = date2temp1.getFullYear();
+            date2temp1 = yyyy + '-' + mm + '-' + dd;
+        }
+        else if (viewid == 2) {
+            var enddate;
+            yyyy = selected_date_formatted.getFullYear();
+            mm = selected_date_formatted.getMonth() + 1;
+            date1temp1 = yyyy + '-' + mm + '-01';
+            if (mm == 2) {
+                enddate = 28;
+            }
+            else if (mm == 4 || mm == 6 || mm == 8 || mm == 9 || mm == 11) {
+                enddate = 30;
+            }
+            else {
+                enddate = 31;
+            }
+            date2temp1 = yyyy + '-' + mm + '-' + enddate;
+        }
         $.ajax({
             type: 'POST',
             url: '/getGroups',
             dataType: 'json',
-            data: { location_id: locationid, count: group_count },
+            data: { location_id: locationid, date1: date1temp1, date2: date2temp1 },
             async: false,
             success: function (data) {
+                var energy_list = new Array(12).fill(0), status_list = new Array(12).fill(0), group_name_list = new Array(12).fill('Data Unavailable!'), group_id_list = new Array(12), subgroup = new Array(12).fill(0);
                 $('.matrix-div').html(' ');
-                for (var itr = 0; itr < data.length; itr++) {
+                var itr_count = 0, Previous_time;
+                for (i = 0; i < data.length; i++) {
+                    if (i == 0) {
+                        Previous_time = data[i].gtime.slice(0, 2);
+                        energy_list[i % group_count] = data[i].energy;
+                        status_list[i % group_count] = data[i].status;
+
+                    }
+                    else {
+                        energy_list[i % group_count] = energy_list[i % group_count] + data[i].energy;
+                        status_list[i % group_count] = status_list[i % group_count] + data[i].status;
+                    }
+                    group_name_list[i % group_count] = data[i].group_name;
+                    group_id_list[i % group_count] = data[i].group_id;
+                    subgroup[i % group_count] = data[i].subgroup;
+                }
+
+                for (var itr = 0; itr < energy_list.length; itr++) {
                     var temphtml = $('.matrix-div').html();
                     var temp;
                     var btntype = '', imagetype = '';
-                    if (data[itr].status == 0) {
+                    if (status_list[itr] == 0) {
                         imagetype = 'lightning-low.svg';
                         btntype = 'inactive';
                     }
                     else {
                         imagetype = 'lightning.svg'
-                        if (data[itr].energy == 0)
+                        if (energy_list[itr] == 0)
                             btntype = 'low';
                         else
                             btntype = 'high';
                     }
-                    if (data[itr].subgroup == 0) {
-                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + data[itr].group_name + '<input type="hidden" class="group-id" value="' + data[itr].group_id + '"></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + data[itr].energy + ' Kwh.</strong ></div > ';
+                    if (subgroup[itr] == 0) {
+                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + group_name_list[itr] + '<input type="hidden" class="group-id" value="' + group_id_list[itr] + '"></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + energy_list[itr] + ' Kwh.</strong ></div > ';
                     }
                     else {
-                        temp = ' <div class="room group-btn ' + btntype + '"><div class="group-btn-title">' + data[itr].group_name + '<input type="hidden" class="group-id" value="' + data[itr].group_id + '"></div><div class="subrooms"><ul class="room_list"><li class="all-room"><b>View All</b></li>';
+                        temp = ' <div class="room group-btn ' + btntype + '"><div class="group-btn-title">' + group_name_list[itr] + '<input type="hidden" class="group-id" value="' + group_id_list[itr] + '"></div><div class="subrooms"><ul class="room_list"><li class="all-room"><b>View All</b></li>';
                         $.ajax({
                             type: 'POST',
-                            data: { location_id: locationid, parentgroup_id: data[itr].group_id },
+                            data: { location_id: locationid, parentgroup_id: group_id_list[itr] },
                             dataType: 'json',
                             url: '/getSubGroupsCount',
                             async: false,
@@ -189,7 +240,7 @@ $(document).ready(function () {
                                 $.ajax({
                                     type: 'POST',
                                     dataType: 'json',
-                                    data: { location_id: locationid, parentgroup_id: data[itr].group_id, sgcount: datacount[0].sgcount },
+                                    data: { location_id: locationid, parentgroup_id: group_id_list[itr], sgcount: datacount[0].sgcount },
                                     url: '/getSubGroups',
                                     async: false,
                                     success: function (datanew) {
@@ -206,7 +257,7 @@ $(document).ready(function () {
                                 console.log("Error!!", err);
                             }
                         })
-                        temp = temp + '</ul></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy">' + data[itr].energy + ' Kwh.</strong></div>';
+                        temp = temp + '</ul></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy">' + energy_list[itr] + ' Kwh.</strong></div>';
                     }
                     $('.matrix-div').html(temphtml + temp);
                 }
@@ -1313,6 +1364,22 @@ $(document).ready(function () {
         }
         return dateArray;
     }
+
+    //get Previous Sunday
+    function getSunday(d) {
+        d = new Date(d);
+        var day = d.getDay(),
+            diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
+        return new Date(d.setDate(diff));
+    }
+    //get Next Saturday
+    function getSaturday(d) {
+        d = new Date(d);
+        var day = d.getDay(),
+            diff = d.getDate() + (7 - day) + (day == 0 ? -6 : -1); // adjust when day is sunday
+        return new Date(d.setDate(diff));
+    }
+
 
     /**----------------------------------------Media Queries------------------------------------------------------- */
     function mediaquery(x) {

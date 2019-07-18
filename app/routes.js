@@ -130,7 +130,7 @@ module.exports = function (app, passport) {
     })
     app.post('/getGroups', function (req, res) {
         connection.query('USE ' + dbconfig.database)
-        connection.query("select g.group_name, g.group_id, e.status, e.energy, g.subgroup from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? order by e.time desc limit ?;", [req.body.location_id, parseInt(req.body.count)], (err, rows, fields) => {
+        connection.query("select g.group_name, g.group_id, e.status, time(e.time) as gtime,e.energy, g.subgroup from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? and date(e.time) >= ? and date(e.time)<= ? order by e.time desc;", [req.body.location_id, req.body.date1, req.body.date2], (err, rows, fields) => {
             if (err)
                 console.log(err)
             res.send(rows)

@@ -36,5 +36,9 @@ var pie_config = {
             display: true,
             position: 'left'
         },
+        title: {
+            display: true,
+            text: 'Premise Energy'
+        }
     }
 };

@@ -9,7 +9,7 @@ var alllinecharts = [], allsublinecharts = [];
 var tempcomparedrpli;
 var latlong = [];
 var today_date = '';
-var selected_date = '';
+var selected_date = '', selected_date_formatted;
 $(document).ready(function () {
     /*-----------------------------------Get Today's Date--------------------------------------------*/
     function getTodayDate() {
@@ -17,6 +17,7 @@ $(document).ready(function () {
         var dd = String(today.getDate()).padStart(2, '0');
         var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
         var yyyy = today.getFullYear();
+        selected_date_formatted = today;
         today = yyyy + '-' + mm + '-' + dd;
         today_date = selected_date = today;
         $('.date_text').text(today_date);
@@ -128,7 +129,9 @@ $(document).ready(function () {
         /**-------------------------------------On Date Change-------------------------------------------------------- */
         $('.global-date').on('change', function (e) {
             selected_date = webshim.format.date($.prop(e.target, 'value'));
+            selected_date_formatted = new Date(selected_date.slice(0, 4), selected_date.slice(5, 7) - 1, selected_date.slice(8, 10));
             $('.date_text').text(selected_date)
+            RefreshAll();
         })
 
     })
@@ -315,7 +318,7 @@ $(document).ready(function () {
         var chartdata;
         for (grp_id = 1; grp_id <= group_count; grp_id++) {
             if (viewid != 3)
-                chartdata = getChartData(new Date(), '', grp_id);
+                chartdata = getChartData(selected_date_formatted, '', grp_id);
             else
                 chartdata = getChartData($('.custom_from_date').val(), $('.custom_to_date').val(), grp_id);
             line_config.data.labels = chartdata[0];
@@ -336,7 +339,7 @@ $(document).ready(function () {
     //Generate pie chart
     function generatePieCharts() {
         if (viewid != 3)
-            piechartdata(new Date(2019, 5, 28), '');
+            piechartdata(selected_date_formatted, '');
         else
             piechartdata($('.custom_from_date').val(), $('.custom_to_date').val());
     }
@@ -351,9 +354,9 @@ $(document).ready(function () {
             $('.compare-date').each(function () {
                 if ($(this).find('.date-val').val() == "1") {
                     if (itr < 12) {
-                        dataOriginal = getChartData(new Date(), '', itr + 1);
+                        dataOriginal = getChartData(selected_date_formatted, '', itr + 1);
                         if ($(this).find('.custom_compare_date').val() == undefined || $(this).find('.custom_compare_date').val() == '') {
-                            dataSecondary = getChartData(new Date(), '', itr + 1);
+                            dataSecondary = getChartData(selected_date_formatted, '', itr + 1);
                         }
                         else {
                             tempdate = $(this).find('.custom_compare_date').val()
@@ -362,9 +365,9 @@ $(document).ready(function () {
                         generateComapreChart(dataOriginal, dataSecondary, itr, tempdate);
                     }
                     else {
-                        dataOriginal = getSubChartData(new Date(), '', $(this).parent().parent().parent().find('.subgroup-name').text())
+                        dataOriginal = getSubChartData(selected_date_formatted, '', $(this).parent().parent().parent().find('.subgroup-name').text())
                         if ($(this).find('.custom_compare_date').val() == undefined || $(this).find('.custom_compare_date').val() == '') {
-                            dataSecondary = getSubChartData(new Date(), '', $(this).parent().parent().parent().find('.subgroup-name').text());
+                            dataSecondary = getSubChartData(selected_date_formatted, '', $(this).parent().parent().parent().find('.subgroup-name').text());
                         }
                         else {
                             tempdate = $(this).find('.custom_compare_date').val()
@@ -386,13 +389,13 @@ $(document).ready(function () {
             $('.compare-date').each(function () {
                 if ($(this).find('.date-val').val() == "1") {
                     if (itr < 12) {
-                        dataOriginal = getChartData(new Date(), '', itr + 1)
-                        dataSecondary = getChartData(new Date(), '', itr + 1, locationidt)
+                        dataOriginal = getChartData(selected_date_formatted, '', itr + 1)
+                        dataSecondary = getChartData(selected_date_formatted, '', itr + 1, locationidt)
                         generateComapreChart(dataOriginal, dataSecondary, itr, -1, locationidt);
                     }
                     else {
-                        dataOriginal = getSubChartData(new Date(), '', $(this).parent().parent().parent().find('.subgroup-name').text())
-                        dataSecondary = getSubChartData(new Date(), '', $(this).parent().parent().parent().find('.subgroup-name').text(), locationidt)
+                        dataOriginal = getSubChartData(selected_date_formatted, '', $(this).parent().parent().parent().find('.subgroup-name').text())
+                        dataSecondary = getSubChartData(selected_date_formatted, '', $(this).parent().parent().parent().find('.subgroup-name').text(), locationidt)
                         generateComapreSubChart(dataOriginal, dataSecondary, itr - 12, -1, locationidt);
                     }
                 }
@@ -423,8 +426,8 @@ $(document).ready(function () {
                 itr2_groupno = itr2_groupno + 1;
             }
             itr2_groupno = itr2_groupno - 133;
-            dataOriginal = getChartData(new Date(), '', itr_groupno + 1);
-            dataSecondary = getChartData(new Date(), '', itr2_groupno + 1);
+            dataOriginal = getChartData(selected_date_formatted, '', itr_groupno + 1);
+            dataSecondary = getChartData(selected_date_formatted, '', itr2_groupno + 1);
             generateComapreChart(dataOriginal, dataSecondary, itr_groupno, -1, 0, temptext)
         })
         $('.subgroup-list').click(function () {
@@ -451,8 +454,8 @@ $(document).ready(function () {
                 itr2_groupno = itr2_groupno + 1;
             }
             itr2_groupno = itr2_groupno - 290;
-            dataOriginal = getSubChartData(new Date(), '', $(this).parent().parent().parent().parent().parent().find('.subgroup-name').text());
-            dataSecondary = getSubChartData(new Date(), '', temptext);
+            dataOriginal = getSubChartData(selected_date_formatted, '', $(this).parent().parent().parent().parent().parent().find('.subgroup-name').text());
+            dataSecondary = getSubChartData(selected_date_formatted, '', temptext);
             generateComapreSubChart(dataOriginal, dataSecondary, itr_groupno, -1, 0, temptext)
         })
     }
@@ -539,8 +542,7 @@ $(document).ready(function () {
             var dd = String(date1.getDate()).padStart(2, '0');
             var mm = String(date1.getMonth() + 1).padStart(2, '0'); //January is 0!
             var yyyy = date1.getFullYear();
-            mm = 6;
-            date1temp = yyyy + '-' + '06' + '-28';
+            date1temp = yyyy + '-' + mm + '-' + dd;
         }
         var labels = [], energy = [], grpname;
         if (viewid == 0) {
@@ -564,7 +566,7 @@ $(document).ready(function () {
             })
         }
         else if (viewid == 1) {
-            date1temp = new Date(yyyy, 5, 29);
+            date1temp = new Date(yyyy, mm - 1, dd);
             labels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             $.ajax({
                 type: 'POST',
@@ -588,7 +590,7 @@ $(document).ready(function () {
             })
         }
         else if (viewid == 2) {
-            date1temp = yyyy + '-' + '06' + '-';
+            date1temp = yyyy + '-' + mm + '-';
             if (mm == 1 || mm == 3 || mm == 5 || mm == 7 || mm == 8 || mm == 10 || mm == 12) {
                 for (j = 1; j <= 31; j++) {
                     labels[j - 1] = date1temp + j;
@@ -687,7 +689,7 @@ $(document).ready(function () {
             success: function (data) {
                 for (subgrp_id = 1; subgrp_id <= data.length; subgrp_id++) {
                     if (viewid != 3)
-                        chartdata = getSubChartData(new Date(), '', data[subgrp_id - 1].subgroup_name);
+                        chartdata = getSubChartData(selected_date_formatted, '', data[subgrp_id - 1].subgroup_name);
                     else
                         chartdata = getSubChartData($('.custom_from_date').val(), $('.custom_to_date').val(), data[subgrp_id - 1].subgroup_name);
                     line_config.data.labels = chartdata[0];
@@ -711,10 +713,9 @@ $(document).ready(function () {
         locationid = parseInt(locationid);
         if (typeof date1 != "string") {
             var dd = String(date1.getDate()).padStart(2, '0');
-            var mm = String(date1.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var mm = String(date1.getMonth() + 1).padStart(2, '0');
             var yyyy = date1.getFullYear();
-            mm = 6;
-            date1temp = yyyy + '-' + '07' + '-01';
+            date1temp = yyyy + '-' + mm + '-' + dd;
         }
         var labels = [], energy = [], grpname;
         if (viewid == 0) {
@@ -738,7 +739,7 @@ $(document).ready(function () {
             })
         }
         else if (viewid == 1) {
-            date1temp = new Date(yyyy, 6, 02);
+            date1temp = new Date(yyyy, mm - 1, dd);
             labels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             $.ajax({
                 type: 'POST',
@@ -762,8 +763,7 @@ $(document).ready(function () {
             })
         }
         else if (viewid == 2) {
-            mm = 7
-            date1temp = yyyy + '-' + '07' + '-';
+            date1temp = yyyy + '-' + mm + '-';
             if (mm == 1 || mm == 3 || mm == 5 || mm == 7 || mm == 8 || mm == 10 || mm == 12) {
                 for (j = 1; j <= 31; j++) {
                     labels[j - 1] = date1temp + j;
@@ -1107,8 +1107,8 @@ $(document).ready(function () {
 
     //comparedrpli-list
     function comparedrpli_function(i, selected_loc) {
-        dataOriginal = getChartData(new Date(), '', i, locationid);
-        dataSecondary = getChartData(new Date(), '', i, selected_loc)
+        dataOriginal = getChartData(selected_date_formatted, '', i, locationid);
+        dataSecondary = getChartData(selected_date_formatted, '', i, selected_loc)
         generateComapreChart(dataOriginal, dataSecondary, i - 1, -1, selected_loc);
         if (i == group_count)
             clearInterval(tempcomparedrpli);
@@ -1150,8 +1150,8 @@ $(document).ready(function () {
                 itr++;
             }, 2000);
             $('subgroup-name').each(function () {
-                dataOriginal = getSubChartData(new Date(), '', $(this).text(), locationid);
-                dataSecondary = getSubChartData(new Date(), '', $(this).text(), selected_loc);
+                dataOriginal = getSubChartData(selected_date_formatted, '', $(this).text(), locationid);
+                dataSecondary = getSubChartData(selected_date_formatted, '', $(this).text(), selected_loc);
                 generateComapreSubChart(dataOriginal, dataSecondary, itr, -1, selected_loc);
                 itr++;
             })
@@ -1160,13 +1160,13 @@ $(document).ready(function () {
             var dataOriginal, dataSecondary;
             if ($('.custom_comparedrpli_date').val() == undefined || $('.custom_comparedrpli_date').val() == '') {
                 for (i = 1; i <= group_count; i++) {
-                    dataOriginal = getChartData(new Date(), '', i, locationid);
-                    dataSecondary = getChartData(new Date(), '', i, locationid);
+                    dataOriginal = getChartData(selected_date_formatted, '', i, locationid);
+                    dataSecondary = getChartData(selected_date_formatted, '', i, locationid);
                     generateComapreChart(dataOriginal, dataSecondary, i - 1, -1)
                 }
                 $('subgroup-name').each(function () {
-                    dataOriginal = getSubChartData(new Date(), '', $(this).text(), locationid);
-                    dataSecondary = getSubChartData(new Date(), '', $(this).text(), locationid);
+                    dataOriginal = getSubChartData(selected_date_formatted, '', $(this).text(), locationid);
+                    dataSecondary = getSubChartData(selected_date_formatted, '', $(this).text(), locationid);
                     generateComapreSubChart(dataOriginal, dataSecondary, itr, -1);
                     itr++;
                 })
@@ -1175,12 +1175,12 @@ $(document).ready(function () {
                 var itr = 0;
                 tempdate = $('.custom_comparedrpli_date').val();
                 for (i = 1; i <= group_count; i++) {
-                    dataOriginal = getChartData(new Date(), '', i, locationid);
-                    dataSecondary = getChartData(new Date(), '', i, locationid)
+                    dataOriginal = getChartData(selected_date_formatted, '', i, locationid);
+                    dataSecondary = getChartData(selected_date_formatted, '', i, locationid)
                     generateComapreChart(dataOriginal, dataSecondary, i - 1, -1)
                 }
                 $('subgroup-name').each(function () {
-                    dataOriginal = getSubChartData(new Date(), '', $(this).text(), locationid);
+                    dataOriginal = getSubChartData(tempdate.slice(0, 4), tempdate.slice(5, 7), tempdate.slice(8, 10), '', $(this).text(), locationid);
                     dataSecondary = getSubChartData(new Date(tempdate.slice(0, 4), tempdate.slice(5, 7), tempdate.slice(8, 10)), '', $(this).text(), locationid);
                     generateComapreSubChart(dataOriginal, dataSecondary, itr, -1);
                     itr++;
@@ -1243,6 +1243,7 @@ $(document).ready(function () {
         if (line_config.data.datasets.length > 1)
             line_config.data.datasets.splice(1, 2);
         getGroupCount();
+        generatePieCharts();
         formmatrix();
         createCharts();
         createSubCharts();

@@ -1,5 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var express = require("express");
 var session = require("express-session");
 var cookieParser = require("cookie-parser");
@@ -13,10 +13,10 @@ var MySQLEvents = require('mysql-events');
 var dsn = {
     host: 'localhost',
     user: 'ecom',
-    password: 'password_123',
+    password: 'password_123'
 };
 var mysqlEventWatcher = MySQLEvents(dsn);
-require('./config/passport.js')(passport);
+require('./config/passport')(passport);
 app.engine('html', require('ejs').renderFile);
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({

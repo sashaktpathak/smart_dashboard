@@ -28,6 +28,18 @@ html, body
     color: maroon;
     text-shadow: 1px 1px red;
 }
+.totaldataused
+{
+    padding: 10px;
+    padding-top: 20px;
+    padding-bottom: 20px; 
+    font-size: 1.4em;
+    font-weight: 800;
+    background-image: url('../images/lightning.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 250px;
+}
 .alert-marquee>ul
 {
     list-style-type: none;
@@ -199,7 +211,7 @@ html, body
 {
     margin-left: -30px;
 }
-#pie-chart-area
+#pie-chart-area, #globalpie-chart-area
 {
     height: 350px !important;
 }

@@ -4,12 +4,14 @@ var totallocations = 0;
 var viewid = 0;
 var group_count = 0;
 var scrollOff = 0;
+var totalenergyusage = 0;
 var linechartval = [], sublinechartval = [];
 var alllinecharts = [], allsublinecharts = [];
 var tempcomparedrpli;
 var latlong = [];
-var today_date = '';
+var today_date = '', lastupdatedtime = '';
 var selected_date = '', selected_date_formatted;
+var locationlist = [];
 $(document).ready(function () {
     /*-----------------------------------Get Today's Date--------------------------------------------*/
     function getTodayDate() {
@@ -17,10 +19,12 @@ $(document).ready(function () {
         var dd = String(today.getDate()).padStart(2, '0');
         var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
         var yyyy = today.getFullYear();
+        lastupdatedtime = String(today.getHours()).padStart(2, '0') + ":" + String(today.getMinutes()).padStart(2, '0') + ":" + String(today.getSeconds()).padStart(2, '0');
         selected_date_formatted = today;
         today = yyyy + '-' + mm + '-' + dd;
         today_date = selected_date = today;
         $('.date_text').text(today_date);
+        $('.lastupdatedhere').text(lastupdatedtime)
     }
     getTodayDate();
     /** -----------------------------Map Formation-------------------------------------------------- */
@@ -53,6 +57,7 @@ $(document).ready(function () {
                             if ((datanew[j].user_id == $('.passed_user_id').val())) {
                                 for (t = 0; t < data.length; t++) {
                                     if ((datanew[j].locationid == data[t].id)) {
+                                        locationlist.push(data[t].location);
                                         $('.drpmn').append("<li class='drpmnli'>" + data[t].location + "<input type='hidden' class='stored_location_id' value='" + data[t].id + "'></li>")
                                         var temploc = [data[t].latitude, data[t].longitude];
                                         locationmarker = new L.marker(temploc);
@@ -146,6 +151,9 @@ $(document).ready(function () {
 
         ctx = document.getElementById('pie-chart-area').getContext('2d');
         window.myPie = new Chart(ctx, pie_config);
+
+        ctx = document.getElementById('globalpie-chart-area').getContext('2d');
+        window.myPie2 = new Chart(ctx, pie_config2);
 
         ctx2 = document.getElementsByClassName('efficiency-chart')[0].getContext('2d')
         window.bar2 = new Chart(ctx2, bar_config2)
@@ -1142,7 +1150,10 @@ $(document).ready(function () {
             }
 
         })
+        var totalenergyused = 0;
         for (var itr = 1; itr <= totallocations; itr++) {
+            if (dataSum[itr - 1] != undefined)
+                totalenergyused = totalenergyused + parseInt(dataSum[itr - 1]);
             if (room_count[itr - 1] != undefined)
                 dataEfficiency[itr - 1] = dataSum[itr - 1] / (dataType * room_count[itr - 1].room_count);
             var configdata = {
@@ -1155,6 +1166,22 @@ $(document).ready(function () {
             barChartData2.datasets[itr - 1] = configdata;
             window.bar2.update();
         }
+        energy_data22 = []
+        for (itr = 0; itr < totallocations; itr++) {
+            energy_data22.push(dataSum[itr] * 100.0 / totalenergyused);
+        }
+        ajx = {
+            data: energy_data22,
+            backgroundColor: background_data22
+        };
+        templocationlist = []
+        if (energy_data22.length)
+            templocationlist = locationlist;
+        pie_config2.data.datasets[0] = ajx;
+        pie_config2.data.labels = templocationlist;
+        window.myPie2.update()
+        totalenergyusage = dataSum[locationid - 1];
+        $('.totalenergyhere').text(totalenergyusage + 'Kwh.')
     }
 
     //comparedrpli-list
@@ -1305,7 +1332,7 @@ $(document).ready(function () {
         loadComparebtnData();
         btnclicked();
     }
-    //webhism Calender gadget
+    //webhism Calendar gadget
 
     webshim.setOptions('forms-ext', {
         replaceUI: 'auto',

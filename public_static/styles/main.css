@@ -211,10 +211,6 @@ html, body
 {
     margin-left: -30px;
 }
-#pie-chart-area, #globalpie-chart-area
-{
-    height: 350px !important;
-}
 .matrix-area
 {
     display: flex;
@@ -248,6 +244,10 @@ html, body
 .current_view:nth-child(2)
 {
     margin-left: 10px;
+}
+.current_view:nth-child(3)
+{
+    width: 320px;
 }
 .col
 {

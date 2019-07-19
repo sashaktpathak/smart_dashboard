@@ -53,6 +53,7 @@ $(document).ready(function () {
                     async: false,
                     success: function (datanew) {
                         latlong = [];
+                        totallocations = 0;
                         for (j = 0; j < datanew.length; j++) {
                             if ((datanew[j].user_id == $('.passed_user_id').val())) {
                                 for (t = 0; t < data.length; t++) {
@@ -65,6 +66,7 @@ $(document).ready(function () {
                                         locationmarker.addTo(map)
                                             .bindPopup('<b>Location: </b>' + data[t].id)
                                             .on('click', changelocation);
+                                        totallocations++;
                                     }
                                 }
                             }
@@ -82,7 +84,6 @@ $(document).ready(function () {
                 tempsumlat /= latlong.length;
                 tempsumlong /= latlong.length;
                 map.panTo(new L.LatLng(tempsumlat, tempsumlong));
-                totallocations = data.length;
             },
             error: function (err) {
                 console.log("Error!!", err)
@@ -135,7 +136,6 @@ $(document).ready(function () {
         $('.global-date').on('change', function (e) {
             selected_date = webshim.format.date($.prop(e.target, 'value'));
             selected_date_formatted = new Date(selected_date.slice(0, 4), selected_date.slice(5, 7) - 1, selected_date.slice(8, 10));
-            $('.date_text').text(selected_date)
             $('#calenderModal').modal('toggle');
             RefreshAll();
         })
@@ -235,7 +235,7 @@ $(document).ready(function () {
                             btntype = 'high';
                     }
                     if (subgroup[itr] == 0) {
-                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + group_name_list[itr] + '<input type="hidden" class="group-id" value="' + group_id_list[itr] + '"></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + energy_list[itr] + ' Kwh.</strong ></div > ';
+                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + group_name_list[itr] + '<input type="hidden" class="group-id" value="' + group_id_list[itr] + '"></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + energy_list[itr] + ' Wh.</strong ></div > ';
                     }
                     else {
                         temp = ' <div class="room group-btn ' + btntype + '"><div class="group-btn-title">' + group_name_list[itr] + '<input type="hidden" class="group-id" value="' + group_id_list[itr] + '"></div><div class="subrooms"><ul class="room_list"><li class="all-room"><b>View All</b></li>';
@@ -254,7 +254,7 @@ $(document).ready(function () {
                                     async: false,
                                     success: function (datanew) {
                                         for (var itr2 = 0; itr2 < datanew.length; itr2++) {
-                                            temp = temp + '<li class="roomli">' + datanew[itr2].subgroup_name + ' ' + datanew[itr2].energy + 'Kwh. </li>'
+                                            temp = temp + '<li class="roomli">' + datanew[itr2].subgroup_name + ' ' + datanew[itr2].energy + 'Wh. </li>'
                                         }
                                     },
                                     error: function (err) {
@@ -266,7 +266,7 @@ $(document).ready(function () {
                                 console.log("Error!!", err);
                             }
                         })
-                        temp = temp + '</ul></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy">' + energy_list[itr] + ' Kwh.</strong></div>';
+                        temp = temp + '</ul></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy">' + energy_list[itr] + ' Wh.</strong></div>';
                     }
                     $('.matrix-div').html(temphtml + temp);
                 }
@@ -314,7 +314,7 @@ $(document).ready(function () {
                                             else
                                                 btntype = 'high';
                                         }
-                                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + datanew[itr2].subgroup_name + '</div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + datanew[itr2].energy + ' Kwh.</strong ></div > ';
+                                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + datanew[itr2].subgroup_name + '</div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + datanew[itr2].energy + ' Wh.</strong ></div > ';
                                         var temphtml = $('.room-matrix').html();
                                         $('.room-matrix').html(temphtml + temp);
                                     }
@@ -381,6 +381,7 @@ $(document).ready(function () {
                 chartdata = getChartData(selected_date_formatted, '', grp_id);
             else
                 chartdata = getChartData($('.custom_from_date').val(), $('.custom_to_date').val(), grp_id);
+            chartdata[0] = chartdata[0].reverse();
             line_config.data.labels = chartdata[0];
             line_config.data.datasets[0].data = chartdata[1];
             line_config.data.datasets[0].label = chartdata[2];
@@ -389,7 +390,7 @@ $(document).ready(function () {
             linechartval[grp_id - 1] = window.myLine;
             window.myLine.update()
 
-
+            chartdata[0] = chartdata[0].reverse();
             barChartData.datasets[grp_id - 1].data = chartdata[1];
             barChartData.labels = chartdata[0];
             barChartData.datasets[grp_id - 1].label = chartdata[2];
@@ -441,11 +442,12 @@ $(document).ready(function () {
             $(this).find('.date-val').val("0")
         })
         $('.location-list').click(function () {
+            console.log("dnd")
             var locationidt = parseInt($(this).text())
             var itr = 0;
             var dataOriginal, dataSecondary;
             $(this).parent().parent().parent().find('.date-val').val("1")
-
+            console.log($(this).parent().parent().parent().find('.date-val'))
             $('.compare-date').each(function () {
                 if ($(this).find('.date-val').val() == "1") {
                     if (itr < 12) {
@@ -931,7 +933,7 @@ $(document).ready(function () {
         var grouplist = []
         var groupnamelist = []
         var energylist = []
-        var backgroundlist = ['rgb(249, 155, 146)', 'rgb(135, 164, 195)', 'rgb(116, 237, 224)', 'rgb(215, 199, 179)', 'rgb(0,0,0)', 'rgb(220,230,130)', 'rgb(246, 134, 72)', 'rgb(238, 102, 108)', 'rgb(103, 138, 104)', 'rgb(178, 204, 141)', 'rgb(218, 178, 212)', 'rgb(228, 210, 145)', 'rgb(102, 194, 145)', 'rgb(255,0,0)', 'rgb(0,255,0)', 'rgb(0,0,255)'];
+        var backgroundlist = ['rgb(30, 165, 210)', 'rgb(255, 158, 15)', 'rgb(249, 155, 146)', 'rgb(135, 164, 195)', 'rgb(116, 237, 224)', 'rgb(215, 199, 179)', 'rgb(0,0,0)', 'rgb(220,230,130)', 'rgb(246, 134, 72)', 'rgb(238, 102, 108)', 'rgb(103, 138, 104)', 'rgb(178, 204, 141)', 'rgb(218, 178, 212)', 'rgb(228, 210, 145)', 'rgb(102, 194, 145)', 'rgb(255,0,0)', 'rgb(0,255,0)', 'rgb(0,0,255)'];
         var dataSum = [0], dataEfficiency = [0];
         var dataType = 1;
         if (viewid == 0) {
@@ -1157,7 +1159,7 @@ $(document).ready(function () {
             if (room_count[itr - 1] != undefined)
                 dataEfficiency[itr - 1] = dataSum[itr - 1] / (dataType * room_count[itr - 1].room_count);
             var configdata = {
-                label: 'Location ' + itr,
+                label: locationlist[itr - 1],
                 backgroundColor: backgroundlist[itr - 1],
                 borderColor: backgroundlist[itr - 1],
                 data: [dataEfficiency[itr - 1]]
@@ -1181,7 +1183,7 @@ $(document).ready(function () {
         pie_config2.data.labels = templocationlist;
         window.myPie2.update()
         totalenergyusage = dataSum[locationid - 1];
-        $('.totalenergyhere').text(totalenergyusage + 'Kwh.')
+        $('.totalenergyhere').text(totalenergyusage + 'Wh.')
     }
 
     //comparedrpli-list
@@ -1306,6 +1308,49 @@ $(document).ready(function () {
         })
     }
 
+    //change date text
+    function setDateText() {
+        if (viewid == 0) {
+            $('.date_text').text(selected_date);
+        }
+        else if (viewid == 1) {
+            tempdate1 = getSunday(selected_date_formatted);
+            dd = String(tempdate1.getDate()).padStart(2, '0');
+            mm = String(tempdate1.getMonth() + 1).padStart(2, '0');
+            yyyy = tempdate1.getFullYear();
+            tempdate1 = dd + '-' + mm + '-' + yyyy;
+            tempdate2 = getSaturday(selected_date_formatted);
+            dd = String(tempdate2.getDate()).padStart(2, '0');
+            mm = String(tempdate2.getMonth() + 1).padStart(2, '0');
+            yyyy = tempdate2.getFullYear();
+            tempdate2 = dd + '-' + mm + '-' + yyyy;
+            temptext = tempdate1 + ' -to- ' + tempdate2;
+            $('.date_text').text(temptext);
+        }
+        else if (viewid == 2) {
+            mm = String(selected_date_formatted.getMonth() + 1).padStart(2, '0');
+            yyyy = selected_date_formatted.getFullYear();
+            tempdate1 = '01' + '-' + mm + yyyy;
+            if (mm == 2) {
+                enddate = 28;
+            }
+            else if (mm == 4 || mm == 6 || mm == 8 || mm == 9 || mm == 11) {
+                enddate = 30;
+            }
+            else {
+                enddate = 31;
+            }
+            tempdate2 = enddate + '-' + mm + '-' + yyyy;
+
+            temptext = tempdate1 + ' -to- ' + tempdate2;
+            $('.date_text').text(temptext);
+        }
+        else {
+            temptext = $('.custom_from_date') + ' -to ' + $('.custom_to_date');
+            $('.date_text').text(temptext);
+        }
+    }
+
     //Map on click change location
     function changelocation(e) {
         var templatlng = [e.latlng.lat, e.latlng.lng];
@@ -1323,13 +1368,14 @@ $(document).ready(function () {
     function RefreshAll() {
         if (line_config.data.datasets.length > 1)
             line_config.data.datasets.splice(1, 2);
+        setDateText();
         getGroupCount();
         generatePieCharts();
         formmatrix();
         createCharts();
         createSubCharts();
-        comparedata();
         loadComparebtnData();
+        comparedata();
         btnclicked();
     }
     //webhism Calendar gadget

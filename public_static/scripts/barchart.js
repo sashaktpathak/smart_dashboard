@@ -262,7 +262,6 @@ var bar_config2 = {
         title: {
             display: true,
             text: ['Relative Energy index', 'Average Energy Consumption Index per Room for Selected Premise vis a vis other premises for Monitored time'],
-            fontSize: 15,
         }
     }
 }

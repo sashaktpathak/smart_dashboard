@@ -225,7 +225,7 @@ module.exports = function (app, passport) {
     })
     app.post('/getLinesData', function (req, res) {
         connection.query('USE ' + dbconfig.database)
-        connection.query("select g.group_name, g.group_id,time(e.time) as time, e.energy, g.subgroup from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? and e.group_id = ? and date(e.time) = ? order by e.time desc", [req.body.locationid, req.body.group_id, req.body.date], (err, rows, fields) => {
+        connection.query("select g.group_name, g.group_id,time(e.time) as time, e.energy, g.subgroup from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? and e.group_id = ? and date(e.time) = ? order by e.time asc", [req.body.locationid, req.body.group_id, req.body.date], (err, rows, fields) => {
             if (err)
                 console.log(err)
             res.send(rows)

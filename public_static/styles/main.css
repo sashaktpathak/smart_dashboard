@@ -28,6 +28,16 @@ html, body
     color: maroon;
     text-shadow: 1px 1px red;
 }
+.red-text ~ ul
+{
+    margin: 0px;
+    margin-top: 20px;
+    overflow-y: visible;
+}
+.red-text ~ul>li
+{
+    margin: 5px;
+}
 .totaldataused
 {
     padding: 10px;

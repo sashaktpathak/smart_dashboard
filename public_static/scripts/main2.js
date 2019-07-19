@@ -381,7 +381,6 @@ $(document).ready(function () {
                 chartdata = getChartData(selected_date_formatted, '', grp_id);
             else
                 chartdata = getChartData($('.custom_from_date').val(), $('.custom_to_date').val(), grp_id);
-            chartdata[0] = chartdata[0].reverse();
             line_config.data.labels = chartdata[0];
             line_config.data.datasets[0].data = chartdata[1];
             line_config.data.datasets[0].label = chartdata[2];
@@ -390,7 +389,6 @@ $(document).ready(function () {
             linechartval[grp_id - 1] = window.myLine;
             window.myLine.update()
 
-            chartdata[0] = chartdata[0].reverse();
             barChartData.datasets[grp_id - 1].data = chartdata[1];
             barChartData.labels = chartdata[0];
             barChartData.datasets[grp_id - 1].label = chartdata[2];
@@ -1348,6 +1346,12 @@ $(document).ready(function () {
         else {
             temptext = $('.custom_from_date') + ' -to ' + $('.custom_to_date');
             $('.date_text').text(temptext);
+        }
+        if (selected_date == today_date) {
+            $('.matrix-about').text('Live Status');
+        }
+        else {
+            $('.matrix-about').text('Status');
         }
     }
 

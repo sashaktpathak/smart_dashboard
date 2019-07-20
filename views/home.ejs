@@ -31,17 +31,29 @@
         <div class="row container-fluid">
             <div class="col col-sm-6 col-md-4">
                 <div class="pie-chart">
+                    <div class="title-upper-charts"><span class="chart-title">Global Energy Usage</span><br>
+                        <span class="chart-subtitle">Premise wise energy breakup for monitored time</span>
+                    </div>
                     <canvas id="globalpie-chart-area"></canvas>
                 </div>
             </div>
             <div class="col col-sm-4 col-md-4 extra-column">
                 <div class="pie-chart">
+                    <div class="title-upper-charts"><span class="chart-title">Premise Energy Usage</span><br>
+                        <span class="chart-subtitle">Group wise energy breakup of selected premise for monitored
+                            time</span>
+                    </div>
                     <canvas id="pie-chart-area"></canvas>
                 </div>
             </div>
 
             <div class="col col-sm-4 col-md-4">
                 <div class="energy-efficiency">
+                    <div class="title-upper-charts"><span class="chart-title">Relative Energy Consumption
+                            Index</span><br>
+                        <span class="chart-subtitle">Average Energy Consumption Index per Room for Selected Premise vis
+                            a vis other premises for Monitored time</span>
+                    </div>
                     <canvas class="efficiency-chart" id="efficiency-chart"></canvas>
                 </div>
             </div>
@@ -49,14 +61,16 @@
         <div class="row container-fluid">
             <div class="col col-sm-4 col-md-2 alert-column">
                 <div class="container-fluid totaldataused">
-                    Total Energy Usage:
+                    Total Energy Usage:<br>
                     <span class="totalenergyhere"></span>
                     <br><br><br>
-                    Last Updated:
+                    Last Updated:<br>
                     <span class="lastupdatedhere"></span>
                 </div>
                 <div class="container-fluid alerts-box">
-                    <span class="red-text">Alerts</span>
+                    <div class="container-fluid o-red-text">
+                        <div class="red-text">Alerts</div>
+                    </div>
                     <ul>
                         <li>
                             This is ALert 1 <span class="small grey-text alert-date">26-05-2019</span>
@@ -81,8 +95,8 @@
                     </ul>
                 </div>
             </div>
-            <div class="col col-sm-12 col-md-6 matrix-area">MAtrix here</div>
-            <div class="col col-sm-12 col-md-4 display-flex-col">
+            <div class="col col-sm-12 col-md-5 matrix-area">MAtrix here</div>
+            <div class="col col-sm-12 col-md-5 display-flex-col">
                 <div class="current_view">View :
                     <span class="view_text"> DAILY</span>
                 </div>
@@ -98,7 +112,11 @@
         </div>
         <div class="row container-fluid">
             <div class="col col-sm-12 col-md-12 big-chart-div">
-                <button class="btn-danger" onclick="resetZoom()">Reset Zoom</button>
+                <div>
+                    <button class="btn-danger" onclick="resetZoom()">Reset Zoom</button>
+                    <div class="" style="display: inline-block;">Date: <span class="date_charts"></span> Location: <span
+                            class="location_charts"></span></div>
+                </div>
                 <canvas class="big-chart"></canvas>
             </div>
         </div>
@@ -123,6 +141,20 @@
         <div class="container-fluid rooms-chart">
 
         </div>
+        <!-------------------------Modal For loadinng----------------------------->
+        <div id="loadingModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="loader"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!----------------------------Modal ends------------------------------->
         <input type="hidden" class="passed_username" value="<%= name%>">
         <input type="hidden" class="passed_user_id" value="<%= user_id%>">
     </section>

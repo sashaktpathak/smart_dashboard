@@ -183,6 +183,9 @@ var bar_config = {
         responsive: false,
         legend: {
             position: 'top',
+            labels: {
+                fontSize: 15
+            }
         },
         title: {
             display: true,
@@ -194,7 +197,8 @@ var bar_config = {
                 {
                     scaleLabel: {
                         display: true,
-                        labelString: "Time"
+                        labelString: "Time",
+                        fontSize: 22
                     },
                     ticks: {
                         maxRotation: 0,
@@ -206,7 +210,8 @@ var bar_config = {
                 {
                     scaleLabel: {
                         display: true,
-                        labelString: "Energy (in Kwh.)"
+                        labelString: "Energy (in Kwh.)",
+                        fontSize: 22
                     },
                     ticks: {
                         fontSize: 17
@@ -228,24 +233,21 @@ var bar_config = {
                 max: 10,
                 min: 0.5
             }
+        },
+        tooltips: {
+            bodyFontSize: 17,
+            titleFontSize: 15
         }
     }
 }
 var barChartData2 = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    labels: [],
     datasets: [{
-        label: 'Dataset 1',
-        backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
-        borderColor: window.chartColors.red,
+        label: 'Locations',
+        backgroundColor: color(window.chartColors.blue).alpha(0.9).rgbString(),
+        borderColor: window.chartColors.blue,
         borderWidth: 1,
         data: [
-            randomScalingFactor(),
-            randomScalingFactor(),
-            randomScalingFactor(),
-            randomScalingFactor(),
-            randomScalingFactor(),
-            randomScalingFactor(),
-            randomScalingFactor()
         ]
     }]
 
@@ -257,11 +259,10 @@ var bar_config2 = {
         responsive: false,
         legend: {
             position: 'top',
-            fontSize: 15,
         },
         title: {
-            display: true,
-            text: ['Relative Energy index', 'Average Energy Consumption Index per Room for Selected Premise vis a vis other premises', 'for Monitored time'],
+            display: false,
+            text: ['Relative Energy Consumption Index', 'Average Energy Consumption Index per Room for Selected Premise vis a vis', ' other premises for Monitored time'],
         }
     }
 }

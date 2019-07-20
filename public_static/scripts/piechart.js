@@ -33,7 +33,7 @@ var pie_config = {
             position: 'left'
         },
         title: {
-            display: true,
+            display: false,
             text: ['Premise Energy Usage', 'Group wise energy breakup of selected premise for monitored time']
         }
     }
@@ -73,8 +73,8 @@ var pie_config2 = {
             position: 'left'
         },
         title: {
-            display: true,
-            text: ['Global Energy Usage', 'Premise wise energy breakup for monitored time']
+            display: false,
+            text: []
         }
     }
 };

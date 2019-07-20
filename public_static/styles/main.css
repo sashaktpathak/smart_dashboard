@@ -3,6 +3,7 @@ html, body
     margin: 0px;
     padding: 0px;
     overflow-x: hidden;
+    padding-right: 0px !important;
 }
 .container-fluid
 {
@@ -23,32 +24,49 @@ html, body
 }
 .red-text
 {
-    font-size: 1.2em;
-    margin: 10px;
+    font-size: 1.3em;
+    text-align: center;
     color: maroon;
     text-shadow: 1px 1px red;
+    width: 120px;
+    border: 2px dotted green;
 }
-.red-text ~ ul
+.o-red-text
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.o-red-text ~ ul
 {
     margin: 0px;
     margin-top: 20px;
     overflow-y: visible;
 }
-.red-text ~ul>li
+.o-red-text ~ul>li
 {
     margin: 5px;
 }
 .totaldataused
 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 10px;
     padding-top: 20px;
     padding-bottom: 20px; 
-    font-size: 1.4em;
+    font-size: 1.2em;
     font-weight: 800;
     background-image: url('../images/lightning.svg');
     background-repeat: no-repeat;
     background-size: cover;
     height: 250px;
+    flex-direction: column;
+}
+.totalenergyhere, .lastupdatedhere
+{
+    margin: 10px;
+    font-size: 1.35em;
 }
 .alert-marquee>ul
 {
@@ -86,20 +104,13 @@ html, body
 {
     height: 100%;
 }
-.map-area>img
-{
-    width: 72%;
-    height: 100%;
-    left: 26%;
-    position: relative;
-    cursor: pointer;
-}
+
 .map-area
 {
     width: 100%;
     height: 450px;
-    border-radius: 30px;
-    margin-top: 10px;
+    border-radius: 20px;
+    margin-right: 10px;
 }
 .display-flex, .display-flex-col,.display-flex3
 {
@@ -219,7 +230,7 @@ html, body
 }
 .bolt-icon
 {
-    margin-left: -30px;
+    margin-left: -10px;
 }
 .matrix-area
 {
@@ -239,6 +250,38 @@ html, body
     padding: 7px;
     text-align: center;
 }
+.o-matrix-about
+{
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.matrix-legends
+{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.legendBox
+{
+    width: 26px;
+    height: 11px;
+    border: 1px solid rgb(47, 154, 255);
+    margin: 5px;
+}
+.green-box
+{
+    background: #4CAF50;
+}
+.blue-box
+{
+    background-color: #3F51B5;
+}
+.grey-box
+{
+    background: #858585;
+}
 .current_view
 {
     border: 2px dotted green;
@@ -247,7 +290,7 @@ html, body
     padding-left: 10px;
     padding-right: 0px; 
     font-weight: 700;
-    font-size: 1.3em;
+    font-size: 1.15em;
     width: 230px;
     margin-top: 5px;
 }
@@ -257,7 +300,23 @@ html, body
 }
 .current_view:nth-child(3)
 {
-    width: 320px;
+    margin-left: 10px;
+    width: 270px;
+}
+.title-upper-charts
+{
+    text-align: center;
+}
+.chart-title
+{
+    font-weight: 700;
+    font-size: 0.9em;
+}
+.chart-subtitle
+{
+    font-weight: 500;
+    font-size: 0.8em;
+    color: #666;
 }
 .col
 {
@@ -347,6 +406,29 @@ html, body
 {
     width: 100%;
 }
+.loader {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+  }
+  #loadingModal .modal-dialog
+  {
+    height: 70%;
+  }
+  #loadingModal .modal-content
+  {
+      background: rgba(0,0,0,0.0);
+      box-shadow: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+  }
+  
 /*-------------------------------Keyframes-------------------------------------*/
 @keyframes orangediv
 {
@@ -359,6 +441,10 @@ html, body
         background: white;
     }
 }
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 /*--------------------------Media Queries-------------------------------------*/
 @media screen and (max-width: 900px)
 {
@@ -381,6 +467,28 @@ html, body
         left: 4vw;
     }
 
+    .matrix-div>div
+    {
+        width: 120px;
+        height: 95px;
+    }
+    
+}
+@media screen and (max-width: 1300px)
+{
+    .matrix-div>div
+    {
+        width: 140px;
+        height: 110px;
+    }
+}
+@media screen and (max-width: 1500px)
+{
+    .matrix-div>div
+    {
+        width: 160px;
+        height: 135px;
+    }
 }
 /**-------------------------Webhism calender gadget-----------------------------------------*/
 .ws-empty {

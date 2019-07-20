@@ -138,7 +138,23 @@ module.exports = function (app, passport) {
     })
     app.post('/getSubGroups', function (req, res) {
         connection.query('USE ' + dbconfig.database)
-        connection.query(" select s.subgroup_id, s.parentgroup_id, s.locationid, se.time, s.subgroup_name, se.energy from subgroups s, subgroups_energy se where s.locationid = ? and s.subgroup_id = se.subgroup_id and s.subgroup_name = se.subgroup_name  and s.parentgroup_id = ? order by time desc limit ?;", [req.body.location_id, req.body.parentgroup_id, parseInt(req.body.sgcount)], (err, rows, fields) => {
+        connection.query("select s.subgroup_id, s.parentgroup_id, s.locationid, se.time, s.subgroup_name, se.energy from subgroups s, subgroups_energy se where s.locationid = ? and s.subgroup_id = se.subgroup_id and s.subgroup_name = se.subgroup_name  and s.parentgroup_id = ? order by time desc limit ?;", [req.body.location_id, req.body.parentgroup_id, parseInt(req.body.sgcount)], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getSubGroupsSum', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select sum(energy) as sum from subgroups_energy where parentgroup_id = ? and locationid = ? and subgroup_name = ? and date(time)>=? and date(time)<=?;", [req.body.parentgroup_id, req.body.location_id, req.body.subgroup_name, req.body.date1, req.body.date2], (err, rows, fields) => {
+            if (err)
+                console.log(err)
+            res.send(rows)
+        })
+    })
+    app.post('/getRooms', function (req, res) {
+        connection.query('USE ' + dbconfig.database)
+        connection.query("select distinct(subgroup_name) as rmn  from subgroups where parentgroup_id = ? and locationid = ?", [req.body.parentgroup_id, req.body.locationid], (err, rows, fields) => {
             if (err)
                 console.log(err)
             res.send(rows)
@@ -215,14 +231,7 @@ module.exports = function (app, passport) {
             res.send(rows)
         })
     })
-    app.post('/getRooms', function (req, res) {
-        connection.query('USE ' + dbconfig.database)
-        connection.query("select distinct(room_number) as rmn from rooms_data where location = ?", [req.body.locationid], (err, rows, fields) => {
-            if (err)
-                console.log(err)
-            res.send(rows)
-        })
-    })
+
     app.post('/getLinesData', function (req, res) {
         connection.query('USE ' + dbconfig.database)
         connection.query("select g.group_name, g.group_id,time(e.time) as time, e.energy, g.subgroup from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? and e.group_id = ? and date(e.time) = ? order by e.time asc", [req.body.locationid, req.body.group_id, req.body.date], (err, rows, fields) => {
@@ -291,7 +300,6 @@ module.exports = function (app, passport) {
 
                     }
                     var u_type = 1;
-                    console.log('--=--=', req.body.type)
                     if (req.body.type == 'true') {
                         u_type = 0
                         console.log("sfds")

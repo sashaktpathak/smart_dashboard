@@ -5,8 +5,8 @@ var line_config = {
         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
         datasets: [{
             label: 'Pantry',
-            backgroundColor: window.chartColors.red,
-            borderColor: window.chartColors.red,
+            backgroundColor: window.chartColors.blue,
+            borderColor: window.chartColors.blue,
             data: [
                 randomScalingFactor(),
                 randomScalingFactor(),

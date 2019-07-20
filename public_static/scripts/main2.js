@@ -12,7 +12,26 @@ var latlong = [];
 var today_date = '', lastupdatedtime = '';
 var selected_date = '', selected_date_formatted;
 var locationlist = [];
+var loading_data = 1, loadingInterval, loadingOn = 0;
 $(document).ready(function () {
+    loadingScreen();
+    //webhism Calendar gadget
+
+    webshim.setOptions('forms-ext', {
+        replaceUI: 'auto',
+        types: 'date',
+        date: {
+            startView: 2,
+            inlinePicker: true,
+            classes: 'hide-inputbtns'
+        }
+    });
+    webshim.setOptions('forms', {
+        lazyCustomMessages: true
+    });
+    //start polyfilling
+    webshim.polyfill('forms forms-ext');
+
     /*-----------------------------------Get Today's Date--------------------------------------------*/
     function getTodayDate() {
         var today = new Date();
@@ -25,6 +44,7 @@ $(document).ready(function () {
         today_date = selected_date = today;
         $('.date_text').text(today_date);
         $('.lastupdatedhere').text(lastupdatedtime)
+        $('.date_charts').text(selected_date);
     }
     getTodayDate();
     /** -----------------------------Map Formation-------------------------------------------------- */
@@ -97,12 +117,15 @@ $(document).ready(function () {
             formmatrix();
             createCharts();
             createSubCharts();
+            $('.date_charts').text(selected_date);
+            $('.location_charts').text(locationlist[locationid - 1]);
             loadComparebtnData();
             btnclicked();
             comparedata();
         })
         $('.drpmnli').click(function () {
             locationid = parseInt($(this).find('.stored_location_id').val());
+            $('.location_text').text($(this).text())
             RefreshAll();
         })
         $('.viewdrpli').click(function () {
@@ -202,8 +225,9 @@ $(document).ready(function () {
             success: function (data) {
                 var energy_list = new Array(12).fill(0), status_list = new Array(12).fill(0), group_name_list = new Array(12).fill('Data Unavailable!'), group_id_list = new Array(12), subgroup = new Array(12).fill(0);
                 $('.matrix-div').html(' ');
-                var itr_count = 0, Previous_time;
                 for (i = 0; i < data.length; i++) {
+                    data[i].energy = parseFloat(parseFloat(data[i].energy / 1000).toFixed(3));
+
                     if (i == 0) {
                         Previous_time = data[i].gtime.slice(0, 2);
                         energy_list[i % group_count] = data[i].energy;
@@ -217,6 +241,9 @@ $(document).ready(function () {
                     group_name_list[i % group_count] = data[i].group_name;
                     group_id_list[i % group_count] = data[i].group_id;
                     subgroup[i % group_count] = data[i].subgroup;
+                }
+                for (itr = 0; itr < energy_list.length; itr++) {
+                    energy_list[itr] = energy_list[itr].toFixed(3);
                 }
 
                 for (var itr = 0; itr < energy_list.length; itr++) {
@@ -235,38 +262,38 @@ $(document).ready(function () {
                             btntype = 'high';
                     }
                     if (subgroup[itr] == 0) {
-                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + group_name_list[itr] + '<input type="hidden" class="group-id" value="' + group_id_list[itr] + '"></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + energy_list[itr] + ' Wh.</strong ></div > ';
+                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + group_name_list[itr] + '<input type="hidden" class="group-id" value="' + group_id_list[itr] + '"></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + energy_list[itr] + ' Kwh</strong ></div > ';
                     }
                     else {
                         temp = ' <div class="room group-btn ' + btntype + '"><div class="group-btn-title">' + group_name_list[itr] + '<input type="hidden" class="group-id" value="' + group_id_list[itr] + '"></div><div class="subrooms"><ul class="room_list"><li class="all-room"><b>View All</b></li>';
                         $.ajax({
                             type: 'POST',
-                            data: { location_id: locationid, parentgroup_id: group_id_list[itr] },
+                            data: { parentgroup_id: group_id_list[itr], locationid: locationid },
                             dataType: 'json',
-                            url: '/getSubGroupsCount',
+                            url: '/getRooms',
                             async: false,
                             success: function (datacount) {
-                                $.ajax({
-                                    type: 'POST',
-                                    dataType: 'json',
-                                    data: { location_id: locationid, parentgroup_id: group_id_list[itr], sgcount: datacount[0].sgcount },
-                                    url: '/getSubGroups',
-                                    async: false,
-                                    success: function (datanew) {
-                                        for (var itr2 = 0; itr2 < datanew.length; itr2++) {
-                                            temp = temp + '<li class="roomli">' + datanew[itr2].subgroup_name + ' ' + datanew[itr2].energy + 'Wh. </li>'
+                                for (itr3 = 0; itr3 < datacount.length; itr3++) {
+                                    $.ajax({
+                                        type: 'POST',
+                                        dataType: 'json',
+                                        data: { parentgroup_id: group_id_list[itr], location_id: locationid, subgroup_name: datacount[itr3].rmn, date1: date1temp1, date2: date2temp1 },
+                                        url: '/getSubGroupsSum',
+                                        async: false,
+                                        success: function (datanew) {
+                                            temp = temp + '<li class="roomli">' + datacount[itr3].rmn + ' ' + datanew[0].sum / 1000 + 'Kwh </li>'
+                                        },
+                                        error: function (err) {
+                                            console.log("Error!!", err);
                                         }
-                                    },
-                                    error: function (err) {
-                                        console.log("Error!!", err);
-                                    }
-                                })
+                                    })
+                                }
                             },
                             error: function (err) {
                                 console.log("Error!!", err);
                             }
                         })
-                        temp = temp + '</ul></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy">' + energy_list[itr] + ' Wh.</strong></div>';
+                        temp = temp + '</ul></div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy">' + energy_list[itr] + ' Kwh</strong></div>';
                     }
                     $('.matrix-div').html(temphtml + temp);
                 }
@@ -301,7 +328,23 @@ $(document).ready(function () {
                                 url: '/getSubGroups',
                                 async: false,
                                 success: function (datanew) {
+
                                     for (var itr2 = 0; itr2 < datanew.length; itr2++) {
+                                        var energytemp;
+                                        $.ajax({
+                                            type: 'POST',
+                                            url: '/getSubGroupsSum',
+                                            dataType: 'json',
+                                            data: { parentgroup_id: group_idtemp, location_id: locationid, subgroup_name: datanew[itr2].subgroup_name, date1: date1temp1, date2: date2temp1 },
+                                            async: false,
+                                            success: function (dataenergy) {
+                                                energytemp = dataenergy[0].sum;
+                                            },
+                                            error: function (err) {
+                                                console.log("Error!!", err);
+                                            }
+                                        })
+                                        datanew[itr2].energy = energytemp / 1000;
                                         var btntype = '', imagetype = '';
                                         if (datanew[itr2].status == 0) {
                                             imagetype = 'lightning-low.svg';
@@ -314,7 +357,7 @@ $(document).ready(function () {
                                             else
                                                 btntype = 'high';
                                         }
-                                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + datanew[itr2].subgroup_name + '</div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + datanew[itr2].energy + ' Wh.</strong ></div > ';
+                                        temp = ' <div class="group-btn ' + btntype + '"><div class="group-btn-title">' + datanew[itr2].subgroup_name + '</div><img src="images/' + imagetype + '" class="bolt bolt-icon" width="50"><strong class="energy" > ' + datanew[itr2].energy + ' Kwh</strong ></div > ';
                                         var temphtml = $('.room-matrix').html();
                                         $('.room-matrix').html(temphtml + temp);
                                     }
@@ -344,8 +387,9 @@ $(document).ready(function () {
         $('.group-charts-area').html(' ');
         for (var i = 0; i < group_count; i++) {
             var temphtml = $('.group-charts-area').html();
-            var temp = '<div class="col col-sm-6 col-md-4 group' + (i + 1) + '"><div class="display-flex3">Chart ' + (i + 1) + ' <button class="btn btn-primary btn-compare" > Compare</button ></div><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-date">By View<input type="hidden" class="date-val" value="0"><input type="date" class="custom_date custom_compare_date"></li><li class="compare-location">By Location<ul class="compare-location-list"></ul></li><li>By Group<ul class="compare-group-list"></ul></li></ul></div><canvas class="line-chart" id="line-canvas' + (i + 1) + '"></canvas></div> ';
+            var temp = '<div class="col col-sm-6 col-md-4 group' + (i + 1) + '"><div class="" style="display: inline-block;">Date: <span class="date_charts"></span> Location: <span class="location_charts"></span></div><div class="display-flex3">Chart ' + (i + 1) + ' <button class="btn btn-primary btn-compare" > Compare</button ></div><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-date">By View<input type="hidden" class="date-val" value="0"><input type="date" class="custom_date custom_compare_date"></li><li class="compare-location">By Location<ul class="compare-location-list"></ul></li><li>By Group<ul class="compare-group-list"></ul></li></ul></div><canvas class="line-chart" id="line-canvas' + (i + 1) + '"></canvas></div> ';
             $('.group-charts-area').html(temphtml + temp);
+
         }
         alllinecharts = $('.line-chart');
         generateCharts();
@@ -362,7 +406,7 @@ $(document).ready(function () {
             success: function (data) {
                 for (itr = 0; itr < data.length; itr++) {
                     var temphtml = $('.rooms-chart').html();
-                    var temp = '<div class="col col-sm-6 col-md-4 subgroup' + (itr + 1) + '"><div class="display-flex3"><span class="subgroup-name">' + data[itr].subgroup_name + ' </span><button class="btn btn-primary btn-compare" > Compare</button ></div><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-date">By View<input type="hidden" class="date-val" value="0"><input type="date" class="custom_date custom_compare_date"></li><li class="compare-location">By Location<ul class="compare-location-list"></ul></li><li>By Group<ul class="compare-subgroup-list"></ul></li></ul></div><canvas class="line-subchart" id="line-subcanvas' + (i + 1) + '"></canvas></div> ';
+                    var temp = '<div class="col col-sm-6 col-md-4 subgroup' + (itr + 1) + '"><div class="" style="display: inline-block;">Date: <span class="date_charts"></span> Location: <span class="location_charts"></span></div><div class="display-flex3"><span class="subgroup-name">' + data[itr].subgroup_name + ' </span><button class="btn btn-primary btn-compare" > Compare</button ></div><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-date">By View<input type="hidden" class="date-val" value="0"><input type="date" class="custom_date custom_compare_date"></li><li class="compare-location">By Location<ul class="compare-location-list"></ul></li><li>By Group<ul class="compare-subgroup-list"></ul></li></ul></div><canvas class="line-subchart" id="line-subcanvas' + (i + 1) + '"></canvas></div> ';
                     $('.rooms-chart').html(temphtml + temp);
                 }
             },
@@ -415,11 +459,13 @@ $(document).ready(function () {
                     if (itr < 12) {
                         dataOriginal = getChartData(selected_date_formatted, '', itr + 1);
                         if ($(this).find('.custom_compare_date').val() == undefined || $(this).find('.custom_compare_date').val() == '') {
-                            dataSecondary = getChartData(selected_date_formatted, '', itr + 1);
+                            previous_date_formatted = selected_date_formatted
+                            previous_date_formatted.setDate(previous_date_formatted.getDate() - 1);
+                            dataSecondary = getChartData(previous_date_formatted, '', itr + 1);
                         }
                         else {
                             tempdate = $(this).find('.custom_compare_date').val()
-                            dataSecondary = getChartData(new Date(tempdate.slice(0, 4), tempdate.slice(5, 7), tempdate.slice(8, 10)), '', itr + 1);
+                            dataSecondary = getChartData(new Date(tempdate.slice(0, 4), tempdate.slice(5, 7) - 1, tempdate.slice(8, 10)), '', itr + 1);
                         }
                         generateComapreChart(dataOriginal, dataSecondary, itr, tempdate);
                     }
@@ -438,14 +484,14 @@ $(document).ready(function () {
                 itr++;
             })
             $(this).find('.date-val').val("0")
+            $(this).parent().parent().parent().parent().parent().find('.btn-compare')[0].click();
         })
         $('.location-list').click(function () {
-            console.log("dnd")
-            var locationidt = parseInt($(this).text())
+            //var locationidt = parseInt($(this).text())
+            var locationidt = parseInt($(this).parent().find('.stored_location_id').val())
             var itr = 0;
             var dataOriginal, dataSecondary;
             $(this).parent().parent().parent().find('.date-val').val("1")
-            console.log($(this).parent().parent().parent().find('.date-val'))
             $('.compare-date').each(function () {
                 if ($(this).find('.date-val').val() == "1") {
                     if (itr < 12) {
@@ -462,6 +508,7 @@ $(document).ready(function () {
                 itr++;
             });
             $(this).parent().parent().parent().find('.date-val').val("0");
+            $(this).parent().parent().parent().parent().parent().find('.btn-compare')[0].click();
         })
         $('.group-list').click(function () {
             var itr = 0, itr_groupno = 0, itr2_groupno = 0, itr2 = 0;
@@ -489,6 +536,7 @@ $(document).ready(function () {
             dataOriginal = getChartData(selected_date_formatted, '', itr_groupno + 1);
             dataSecondary = getChartData(selected_date_formatted, '', itr2_groupno + 1);
             generateComapreChart(dataOriginal, dataSecondary, itr_groupno, -1, 0, temptext)
+            $(this).parent().parent().parent().parent().parent().find('.btn-compare')[0].click();
         })
         $('.subgroup-list').click(function () {
             var itr = 0, itr_groupno = 0, itr2_groupno = 0, itr2 = 0;
@@ -517,6 +565,7 @@ $(document).ready(function () {
             dataOriginal = getSubChartData(selected_date_formatted, '', $(this).parent().parent().parent().parent().parent().find('.subgroup-name').text());
             dataSecondary = getSubChartData(selected_date_formatted, '', temptext);
             generateComapreSubChart(dataOriginal, dataSecondary, itr_groupno, -1, 0, temptext)
+            $(this).parent().parent().parent().parent().parent().find('.btn-compare')[0].click();
         })
     }
     //Generate compare chart
@@ -528,11 +577,11 @@ $(document).ready(function () {
         else
             tempdate = tempdate;
         if (locationidt) {
-            lableOriginal = 'Location' + locationid;
-            tempdate = 'Location' + locationidt
+            lableOriginal = 'Location ' + locationlist[locationid - 1];
+            tempdate = 'Location ' + locationlist[locationidt - 1];
         }
         if (secondarygroup) {
-            lableOriginal = 'Original';
+            lableOriginal = dataOriginal[2];
             tempdate = secondarygroup;
         }
         if (dataSecondary[2] == '' || dataSecondary[2] == undefined)
@@ -561,17 +610,17 @@ $(document).ready(function () {
     //Generate comapre sub charts
     function generateComapreSubChart(dataOriginal, dataSecondary, itr, tempdate, locationidt, secondarygroup) {
         line_config.data.labels = dataOriginal[0];
-        var lableOriginal = 'Original'
+        var lableOriginal = dataOriginal[2];
         if (tempdate == -1)
             tempdate = 'Previous';
         if (locationidt) {
-            lableOriginal = 'Location' + locationid;
-            tempdate = 'Location' + locationidt
+            lableOriginal = 'Location ' + locationlist[locationid - 1];
+            tempdate = 'Location ' + locationlist[locationidt - 1];
         }
         if (dataSecondary[2] == '' || dataSecondary[2] == undefined)
             tempdate = 'Data Unavailable!';
         if (secondarygroup) {
-            lableOriginal = 'Original';
+            lableOriginal = dataOriginal[2];
             tempdate = secondarygroup;
         }
         var ajx = {
@@ -615,7 +664,7 @@ $(document).ready(function () {
                 success: function (data) {
                     for (itr = 0; itr < data.length; itr++) {
                         labels[itr] = data[itr].time;
-                        energy[itr] = data[itr].energy;
+                        energy[itr] = data[itr].energy / 1000;
                     }
                     if (data.length)
                         grpname = data[0].group_name;
@@ -637,9 +686,9 @@ $(document).ready(function () {
                 success: function (data) {
                     for (itr = 0; itr < data.length; itr++) {
                         if (energy[labels.indexOf(data[itr].dayname)] == '' || energy[labels.indexOf(data[itr].dayname)] == undefined || energy[labels.indexOf(data[itr].dayname)] == '0')
-                            energy[labels.indexOf(data[itr].dayname)] = data[itr].energy;
+                            energy[labels.indexOf(data[itr].dayname)] = data[itr].energy / 1000;
                         else
-                            energy[labels.indexOf(data[itr].dayname)] = energy[labels.indexOf(data[itr].dayname)] + data[itr].energy;
+                            energy[labels.indexOf(data[itr].dayname)] = energy[labels.indexOf(data[itr].dayname)] + (data[itr].energy / 1000);
                     }
                     if (data.length)
                         grpname = data[0].group_name;
@@ -674,6 +723,7 @@ $(document).ready(function () {
                 async: false,
                 success: function (data) {
                     for (var itr = 0; itr < data.length; itr++) {
+                        data[itr].energy = data[itr].energy / 1000;
                         if (energy[data[itr].day - 1] == '' || energy[data[itr].day - 1] == undefined || energy[data[itr].day - 1] == '0')
                             energy[data[itr].day - 1] = data[itr].energy;
                         else
@@ -698,7 +748,7 @@ $(document).ready(function () {
                 success: function (data) {
                     for (itr = 0; itr < data.length; itr++) {
                         labels[itr] = data[itr].time;
-                        energy[itr] = data[itr].energy;
+                        energy[itr] = data[itr].energy / 1000;
                     }
                     if (data.length)
                         grpname = data[0].group_name;
@@ -725,7 +775,7 @@ $(document).ready(function () {
                 async: false,
                 success: function (data) {
                     for (itr = 0; itr < data.length; itr++) {
-                        energy[labels.indexOf(data[itr].dates.slice(0, 10))] = data[itr].energy;
+                        energy[labels.indexOf(data[itr].dates.slice(0, 10))] = data[itr].energy / 1000;
                     }
                     if (data.length)
                         grpname = data[0].group_name;
@@ -788,7 +838,7 @@ $(document).ready(function () {
                 success: function (data) {
                     for (itr = 0; itr < data.length; itr++) {
                         labels[itr] = data[itr].time.slice(11, 19);
-                        energy[itr] = data[itr].energy;
+                        energy[itr] = data[itr].energy / 1000;
                     }
                     if (data.length)
                         grpname = data[0].subgroup_name;
@@ -809,6 +859,7 @@ $(document).ready(function () {
                 async: false,
                 success: function (data) {
                     for (itr = 0; itr < data.length; itr++) {
+                        data[itr].energy = data[itr].energy / 1000;
                         if (energy[labels.indexOf(data[itr].dayname)] == '' || energy[labels.indexOf(data[itr].dayname)] == undefined || energy[labels.indexOf(data[itr].dayname)] == '0')
                             energy[labels.indexOf(data[itr].dayname)] = data[itr].energy;
                         else
@@ -847,6 +898,7 @@ $(document).ready(function () {
                 async: false,
                 success: function (data) {
                     for (var itr = 0; itr < data.length; itr++) {
+                        data[itr].energy = data[itr].energy / 1000;
                         if (energy[data[itr].day - 1] == '' || energy[data[itr].day - 1] == undefined || energy[data[itr].day - 1] == '0')
                             energy[data[itr].day - 1] = data[itr].energy;
                         else
@@ -870,6 +922,7 @@ $(document).ready(function () {
                 async: false,
                 success: function (data) {
                     for (itr = 0; itr < data.length; itr++) {
+                        data[itr].energy = data[itr].energy / 1000;
                         labels[itr] = data[itr].time.slice(11, 19);
                         energy[itr] = data[itr].energy;
                     }
@@ -898,6 +951,7 @@ $(document).ready(function () {
                 async: false,
                 success: function (data) {
                     for (itr = 0; itr < data.length; itr++) {
+                        data[itr].energy = data[itr].energy / 1000;
                         energy[labels.indexOf(data[itr].dates.slice(0, 10))] = data[itr].energy;
                     }
                     if (data.length)
@@ -947,6 +1001,7 @@ $(document).ready(function () {
                     data: { locationid: location_itr, date: tempdate },
                     success: function (data) {
                         for (i = 0; i < data.length; i++) {
+                            data[i].sum = data[i].sum / 1000;
                             if (!grouplist.includes(data[i].id)) {
                                 grouplist.push(data[i].id)
                                 groupnamelist.push(data[i].grpname)
@@ -957,10 +1012,10 @@ $(document).ready(function () {
                                 energylist[data[i].id] = temp;
                             }
                             if (dataSum[location_itr - 1] == '' || dataSum[location_itr - 1] == NaN || dataSum[location_itr - 1] == undefined || dataSum[location_itr - 1] == 'NaN') {
-                                dataSum[location_itr - 1] = parseInt(data[i].sum);
+                                dataSum[location_itr - 1] = (data[i].sum);
                             }
                             else
-                                dataSum[location_itr - 1] += parseInt(data[i].sum);
+                                dataSum[location_itr - 1] += (data[i].sum);
                         }
                     },
                     error: function (err) {
@@ -979,6 +1034,7 @@ $(document).ready(function () {
                     data: { locationid: location_itr, week: tempdate.getWeek() },
                     success: function (data) {
                         for (i = 0; i < data.length; i++) {
+                            data[i].sum = data[i].sum / 1000;
                             if (!grouplist.includes(data[i].id)) {
                                 grouplist.push(data[i].id)
                                 groupnamelist.push(data[i].grpname)
@@ -989,10 +1045,10 @@ $(document).ready(function () {
                                 energylist[data[i].id] = temp;
                             }
                             if (dataSum[location_itr - 1] == '' || dataSum[location_itr - 1] == NaN || dataSum[location_itr - 1] == undefined || dataSum[location_itr - 1] == 'NaN') {
-                                dataSum[location_itr - 1] = parseInt(data[i].sum);
+                                dataSum[location_itr - 1] = (data[i].sum);
                             }
                             else
-                                dataSum[location_itr - 1] += parseInt(data[i].sum);
+                                dataSum[location_itr - 1] += (data[i].sum);
                             dataType = 7;
                         }
                     },
@@ -1013,6 +1069,7 @@ $(document).ready(function () {
                     data: { locationid: location_itr, month: mm },
                     success: function (data) {
                         for (i = 0; i < data.length; i++) {
+                            data[i].sum = data[i].sum / 1000;
                             if (!grouplist.includes(data[i].id)) {
                                 grouplist.push(data[i].id)
                                 groupnamelist.push(data[i].grpname)
@@ -1023,10 +1080,10 @@ $(document).ready(function () {
                                 energylist[data[i].id] = temp;
                             }
                             if (dataSum[location_itr - 1] == '' || dataSum[location_itr - 1] == NaN || dataSum[location_itr - 1] == undefined || dataSum[location_itr - 1] == 'NaN') {
-                                dataSum[location_itr - 1] = parseInt(data[i].sum);
+                                dataSum[location_itr - 1] = (data[i].sum);
                             }
                             else
-                                dataSum[location_itr - 1] += parseInt(data[i].sum);
+                                dataSum[location_itr - 1] += (data[i].sum);
                             dataType = 30;
                         }
                     },
@@ -1038,11 +1095,12 @@ $(document).ready(function () {
             }
         }
         else if (viewid == 3 && (tempdate2 == '' || tempdate2 == undefined)) {
-            dd = String(tempdate.getDate()).padStart(2, '0');
-            mm = String(tempdate.getMonth() + 1).padStart(2, '0'); //January is 0!
-            yyyy = tempdate.getFullYear();
-            tempdate = yyyy + '-' + mm + '-' + dd;
-
+            if (typeof tempdate != 'string') {
+                dd = String(tempdate.getDate()).padStart(2, '0');
+                mm = String(tempdate.getMonth() + 1).padStart(2, '0'); //January is 0!
+                yyyy = tempdate.getFullYear();
+                tempdate = yyyy + '-' + mm + '-' + dd;
+            }
             for (location_itr = 1; location_itr <= totallocations; location_itr++) {
                 $.ajax({
                     type: 'POST',
@@ -1051,6 +1109,7 @@ $(document).ready(function () {
                     data: { locationid: location_itr, date: tempdate },
                     success: function (data) {
                         for (i = 0; i < data.length; i++) {
+                            data[i].sum = data[i].sum / 1000;
                             if (!grouplist.includes(data[i].id)) {
                                 grouplist.push(data[i].id)
                                 groupnamelist.push(data[i].grpname)
@@ -1061,10 +1120,10 @@ $(document).ready(function () {
                                 energylist[data[i].id] = temp;
                             }
                             if (dataSum[location_itr - 1] == '' || dataSum[location_itr - 1] == NaN || dataSum[location_itr - 1] == undefined || dataSum[location_itr - 1] == 'NaN') {
-                                dataSum[location_itr - 1] = parseInt(data[i].sum);
+                                dataSum[location_itr - 1] = (data[i].sum);
                             }
                             else
-                                dataSum[location_itr - 1] += parseInt(data[i].sum);
+                                dataSum[location_itr - 1] += (data[i].sum);
                         }
                     },
                     error: function (err) {
@@ -1077,14 +1136,16 @@ $(document).ready(function () {
         else if (viewid == 3) {
             var dateArray = getDates(tempdate, tempdate2);
             dataType = dateArray.length;
-            dd = String(tempdate.getDate()).padStart(2, '0');
-            mm = String(tempdate.getMonth() + 1).padStart(2, '0'); //January is 0!
-            yyyy = tempdate.getFullYear();
-            tempdate = yyyy + '-' + mm + '-' + dd;
-            dd = String(tempdate2.getDate()).padStart(2, '0');
-            mm = String(tempdate2.getMonth() + 1).padStart(2, '0'); //January is 0!
-            yyyy = tempdate2.getFullYear();
-            tempdate2 = yyyy + '-' + mm + '-' + dd;
+            if (typeof tempdate != 'string') {
+                dd = String(tempdate.getDate()).padStart(2, '0');
+                mm = String(tempdate.getMonth() + 1).padStart(2, '0'); //January is 0!
+                yyyy = tempdate.getFullYear();
+                tempdate = yyyy + '-' + mm + '-' + dd;
+                dd = String(tempdate2.getDate()).padStart(2, '0');
+                mm = String(tempdate2.getMonth() + 1).padStart(2, '0'); //January is 0!
+                yyyy = tempdate2.getFullYear();
+                tempdate2 = yyyy + '-' + mm + '-' + dd;
+            }
 
             for (location_itr = 1; location_itr <= totallocations; location_itr++) {
                 $.ajax({
@@ -1094,6 +1155,7 @@ $(document).ready(function () {
                     data: { locationid: location_itr, date1: tempdate, date2: tempdate2 },
                     success: function (data) {
                         for (i = 0; i < data.length; i++) {
+                            data[i].sum = data[i].sum / 1000;
                             if (!grouplist.includes(data[i].id)) {
                                 grouplist.push(data[i].id)
                                 groupnamelist.push(data[i].grpname)
@@ -1104,10 +1166,10 @@ $(document).ready(function () {
                                 energylist[data[i].id] = temp;
                             }
                             if (dataSum[location_itr - 1] == '' || dataSum[location_itr - 1] == NaN || dataSum[location_itr - 1] == undefined || dataSum[location_itr - 1] == 'NaN') {
-                                dataSum[location_itr - 1] = parseInt(data[i].sum);
+                                dataSum[location_itr - 1] = (data[i].sum);
                             }
                             else
-                                dataSum[location_itr - 1] += parseInt(data[i].sum);
+                                dataSum[location_itr - 1] += (data[i].sum);
                         }
                     },
                     error: function (err) {
@@ -1151,19 +1213,31 @@ $(document).ready(function () {
 
         })
         var totalenergyused = 0;
+        var configarray = [];
         for (var itr = 1; itr <= totallocations; itr++) {
             if (dataSum[itr - 1] != undefined)
-                totalenergyused = totalenergyused + parseInt(dataSum[itr - 1]);
+                totalenergyused = totalenergyused + parseFloat(dataSum[itr - 1]);
             if (room_count[itr - 1] != undefined)
-                dataEfficiency[itr - 1] = dataSum[itr - 1] / (dataType * room_count[itr - 1].room_count);
+                dataEfficiency[itr - 1] = dataSum[itr - 1] / (room_count[itr - 1].room_count);
             var configdata = {
                 label: locationlist[itr - 1],
                 backgroundColor: backgroundlist[itr - 1],
                 borderColor: backgroundlist[itr - 1],
                 data: [dataEfficiency[itr - 1]]
             }
+
+            if (dataEfficiency[itr - 1]) {
+                configarray.push(configdata)
+            }
+        }
+        configarray.sort(function (a, b) {
+            return a.data[0] > b.data[0]
+        })
+        if (configarray.length) {
             barChartData2.labels = ['Locations']
-            barChartData2.datasets[itr - 1] = configdata;
+            for (itr = 0; itr < totallocations; itr++) {
+                barChartData2.datasets[itr] = configarray[itr];
+            }
             window.bar2.update();
         }
         energy_data22 = []
@@ -1174,14 +1248,19 @@ $(document).ready(function () {
             data: energy_data22,
             backgroundColor: background_data22
         };
+
         templocationlist = []
         if (energy_data22.length)
             templocationlist = locationlist;
         pie_config2.data.datasets[0] = ajx;
         pie_config2.data.labels = templocationlist;
         window.myPie2.update()
-        totalenergyusage = dataSum[locationid - 1];
-        $('.totalenergyhere').text(totalenergyusage + 'Wh.')
+        loading_data = 0;
+        if (dataSum[locationid - 1] != undefined)
+            totalenergyusage = dataSum[locationid - 1];
+        else
+            totalenergyusage = 0;
+        $('.totalenergyhere').text((totalenergyusage).toFixed(3) + 'Kwh')
     }
 
     //comparedrpli-list
@@ -1201,8 +1280,8 @@ $(document).ready(function () {
             $('.comparedrpli-list').html('');
             for (i = 1; i <= totallocations; i++) {
                 if (i != locationid) {
-                    list.append('<li class="location-list">' + i + '</li>')
-                    $('.comparedrpli-list').append("<li class='comparedrpli-listli'>" + i + "<input type='hidden' class='stored_location_id' value='" + i + "'></li>")
+                    list.append('<li class="location-list">' + locationlist[i - 1] + '<input type="hidden" class="stored_location_id" value="' + i + '"></li>')
+                    $('.comparedrpli-list').append("<li class='comparedrpli-listli'>" + locationlist[i - 1] + "<input type='hidden' class='stored_location_id' value='" + i + "'></li>")
                 }
             }
         })
@@ -1310,6 +1389,7 @@ $(document).ready(function () {
     function setDateText() {
         if (viewid == 0) {
             $('.date_text').text(selected_date);
+            $('.date_charts').text(selected_date);
         }
         else if (viewid == 1) {
             tempdate1 = getSunday(selected_date_formatted);
@@ -1324,6 +1404,7 @@ $(document).ready(function () {
             tempdate2 = dd + '-' + mm + '-' + yyyy;
             temptext = tempdate1 + ' -to- ' + tempdate2;
             $('.date_text').text(temptext);
+            $('.date_charts').text(temptext);
         }
         else if (viewid == 2) {
             mm = String(selected_date_formatted.getMonth() + 1).padStart(2, '0');
@@ -1342,10 +1423,12 @@ $(document).ready(function () {
 
             temptext = tempdate1 + ' -to- ' + tempdate2;
             $('.date_text').text(temptext);
+            $('.date_charts').text(temptext);
         }
         else {
             temptext = $('.custom_from_date') + ' -to ' + $('.custom_to_date');
             $('.date_text').text(temptext);
+            $('.date_charts').text(temptext);
         }
         if (selected_date == today_date) {
             $('.matrix-about').text('Live Status');
@@ -1353,6 +1436,7 @@ $(document).ready(function () {
         else {
             $('.matrix-about').text('Status');
         }
+        $('.location_charts').text(locationlist[locationid - 1])
     }
 
     //Map on click change location
@@ -1368,36 +1452,38 @@ $(document).ready(function () {
         }
     }
 
+    //loading screen
+    function loadingScreen() {
+        loadingInterval = setInterval(function () {
+            if (loading_data == 1 && loadingOn == 0) {
+                loadingOn = 1;
+                $('#loadingModal').modal('toggle');
+            }
+            else if (loading_data == 0 && loadingOn == 1) {
+                loadingOn = 0;
+                $('#loadingModal').modal('toggle');
+            }
+        }, 100);
+    }
+
     //Refresh All
     function RefreshAll() {
+        loading_data = 1;
+        loadingOn = 1;
+        $('#loadingModal').modal('toggle');
+        //loadingScreen();
         if (line_config.data.datasets.length > 1)
             line_config.data.datasets.splice(1, 2);
-        setDateText();
         getGroupCount();
         generatePieCharts();
         formmatrix();
         createCharts();
         createSubCharts();
+        setDateText();
         loadComparebtnData();
         comparedata();
         btnclicked();
     }
-    //webhism Calendar gadget
-
-    webshim.setOptions('forms-ext', {
-        replaceUI: 'auto',
-        types: 'date',
-        date: {
-            startView: 2,
-            inlinePicker: true,
-            classes: 'hide-inputbtns'
-        }
-    });
-    webshim.setOptions('forms', {
-        lazyCustomMessages: true
-    });
-    //start polyfilling
-    webshim.polyfill('forms forms-ext');
 
 
     //get week of date
@@ -1464,23 +1550,11 @@ $(document).ready(function () {
     /**----------------------------------------Media Queries------------------------------------------------------- */
     function mediaquery(x) {
         if (x.matches || window.innerWidth <= 1300) {
-            $('.pie-chart').parent().attr('class', 'col col-sm-6 col-md-6');
-            $('.extra-column').attr('class', 'col col-sm-0 col-md-0 extra-column');
-            $('.extra-column').css('display', 'none');
-            $('.energy-efficiency').parent().attr('class', 'col col-sm-6 col-md-6');
-            $('.matrix-div').find('div').css('width', '140px');
-            $('.matrix-div').find('div').css('height', '110px');
             $('.bolt').css('margin-top', '-100px');
             $('.bolt').css('width', '30px');
             $('.energy').css('top', '-50px');
         }
         else {
-            $('.pie-chart').parent().attr('class', 'col col-sm-6 col-md-4');
-            $('.extra-column').attr('class', 'col col-sm-6 col-md-3 extra-column');
-            $('.extra-column').css('display', 'block');
-            $('.energy-efficiency').parent().attr('class', 'col col-sm-6 col-md-5');
-            $('.matrix-div').find('div').css('width', '180px');
-            $('.matrix-div').find('div').css('height', '150px');
             $('.bolt').css('margin-top', '0px');
             $('.bolt').css('width', '50px');
             $('.energy').css('margin-top', '0px');

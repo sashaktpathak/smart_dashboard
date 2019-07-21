@@ -15,23 +15,6 @@ var locationlist = [];
 var loading_data = 1, loadingInterval, loadingOn = 0;
 $(document).ready(function () {
     loadingScreen();
-    //webhism Calendar gadget
-
-    webshim.setOptions('forms-ext', {
-        replaceUI: 'auto',
-        types: 'date',
-        date: {
-            startView: 2,
-            inlinePicker: true,
-            classes: 'hide-inputbtns'
-        }
-    });
-    webshim.setOptions('forms', {
-        lazyCustomMessages: true
-    });
-    //start polyfilling
-    webshim.polyfill('forms forms-ext');
-
     /*-----------------------------------Get Today's Date--------------------------------------------*/
     function getTodayDate() {
         var today = new Date();
@@ -122,6 +105,7 @@ $(document).ready(function () {
             loadComparebtnData();
             btnclicked();
             comparedata();
+            $('[data-toggle="datepicker"]').datepicker();
         })
         $('.drpmnli').click(function () {
             locationid = parseInt($(this).find('.stored_location_id').val());
@@ -162,7 +146,17 @@ $(document).ready(function () {
             $('#calenderModal').modal('toggle');
             RefreshAll();
         })
+        $('.btn2').click(function () {
+            $.get('/getCSV', { viewid: viewid, location_id: locationid }, function () {
 
+            })
+            var str = '/getCSV?location_id=' + locationid + '&viewid=' + viewid;
+            // $.get('/getCSV', { loc: $('.location-text').html(), date: $('.refresh-text1').html(), time: $('.refresh-text2').html() }, (data) => {
+            //     console.log(data)
+
+            // })
+            window.open(str)
+        })
     })
     /**------------------------------------loading footer--------------------------------------------- */
     $('footer').load('footer.html')
@@ -387,7 +381,7 @@ $(document).ready(function () {
         $('.group-charts-area').html(' ');
         for (var i = 0; i < group_count; i++) {
             var temphtml = $('.group-charts-area').html();
-            var temp = '<div class="col col-sm-6 col-md-4 group' + (i + 1) + '"><div class="" style="display: inline-block;">Date: <span class="date_charts"></span> Location: <span class="location_charts"></span></div><div class="display-flex3">Chart ' + (i + 1) + ' <button class="btn btn-primary btn-compare" > Compare</button ></div><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-date">By View<input type="hidden" class="date-val" value="0"><input type="date" class="custom_date custom_compare_date"></li><li class="compare-location">By Location<ul class="compare-location-list"></ul></li><li>By Group<ul class="compare-group-list"></ul></li></ul></div><canvas class="line-chart" id="line-canvas' + (i + 1) + '"></canvas></div> ';
+            var temp = '<div class="col col-sm-6 col-md-4 group' + (i + 1) + '"><div class="" style="display: inline-block;">Date: <span class="date_charts"></span> Location: <span class="location_charts"></span></div><div class="display-flex3">Chart ' + (i + 1) + ' <button class="btn btn-primary btn-compare" > Compare</button ></div><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-date">By View<input type="hidden" class="date-val" value="0"><input data-toggle="datepicker" class="custom_date custom_compare_date"></li><li class="compare-location">By Location<ul class="compare-location-list"></ul></li><li>By Group<ul class="compare-group-list"></ul></li></ul></div><canvas class="line-chart" id="line-canvas' + (i + 1) + '"></canvas></div> ';
             $('.group-charts-area').html(temphtml + temp);
 
         }
@@ -406,7 +400,7 @@ $(document).ready(function () {
             success: function (data) {
                 for (itr = 0; itr < data.length; itr++) {
                     var temphtml = $('.rooms-chart').html();
-                    var temp = '<div class="col col-sm-6 col-md-4 subgroup' + (itr + 1) + '"><div class="" style="display: inline-block;">Date: <span class="date_charts"></span> Location: <span class="location_charts"></span></div><div class="display-flex3"><span class="subgroup-name">' + data[itr].subgroup_name + ' </span><button class="btn btn-primary btn-compare" > Compare</button ></div><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-date">By View<input type="hidden" class="date-val" value="0"><input type="date" class="custom_date custom_compare_date"></li><li class="compare-location">By Location<ul class="compare-location-list"></ul></li><li>By Group<ul class="compare-subgroup-list"></ul></li></ul></div><canvas class="line-subchart" id="line-subcanvas' + (i + 1) + '"></canvas></div> ';
+                    var temp = '<div class="col col-sm-6 col-md-4 subgroup' + (itr + 1) + '"><div class="" style="display: inline-block;">Date: <span class="date_charts"></span> Location: <span class="location_charts"></span></div><div class="display-flex3"><span class="subgroup-name">' + data[itr].subgroup_name + ' </span><button class="btn btn-primary btn-compare" > Compare</button ></div><input type="hidden" class="compare-val" value="0"><div class="compare-area"><ul class="compare-list"><li class="compare-date">By View<input type="hidden" class="date-val" value="0"><input data-toggle="datepicker" class="custom_date custom_compare_date"></li><li class="compare-location">By Location<ul class="compare-location-list"></ul></li><li>By Group<ul class="compare-subgroup-list"></ul></li></ul></div><canvas class="line-subchart" id="line-subcanvas' + (i + 1) + '"></canvas></div> ';
                     $('.rooms-chart').html(temphtml + temp);
                 }
             },
@@ -604,7 +598,7 @@ $(document).ready(function () {
         line_config.data.datasets[0] = ajx;
         //ctx = alllinecharts[itr].getContext('2d')
         //window.myLine = new Chart(ctx, line_config);
-        //linechartval[itr] = window.myLine;
+        //linechartval[itr] = window.myLine; 
         linechartval[itr].update()
     }
     //Generate comapre sub charts
@@ -1267,9 +1261,13 @@ $(document).ready(function () {
     function comparedrpli_function(i, selected_loc) {
         dataOriginal = getChartData(selected_date_formatted, '', i, locationid);
         dataSecondary = getChartData(selected_date_formatted, '', i, selected_loc)
-        generateComapreChart(dataOriginal, dataSecondary, i - 1, -1, selected_loc);
-        if (i == group_count)
-            clearInterval(tempcomparedrpli);
+        generateComapreChart(dataOriginal, dataSecondary, parseInt(i) - 1, -1, selected_loc);
+    }
+    //comparedrpli-view
+    function comparedrpli_view_function(i) {
+        dataOriginal = getChartData(selected_date_formatted, '', i, locationid);
+        dataSecondary = getChartData(selected_date_formatted, '', i, locationid);
+        generateComapreChart(dataOriginal, dataSecondary, i - 1, -1)
     }
 
     //load Compare btn data
@@ -1301,33 +1299,49 @@ $(document).ready(function () {
         })
         $('.comparedrpli-listli').click(function () {
             var dataOriginal, dataSecondary;
-            var selected_loc = parseInt($(this).text().trim());
-            var itr = 1, prev = -1;
-            tempcomparedrpli = setInterval(() => {
+            var selected_loc = parseInt($(this).parent().find('.stored_location_id').val().trim());
+            var itr = 1, prev = -1, tempinterval;
+            // tempcomparedrpli = setInterval(() => {
+            //     comparedrpli_function(itr, selected_loc);
+            //     itr++;
+            // }, 2000);
+            //for (itr = 1; itr <= group_count; itr++) {
+            itr = 2;
+            comparedrpli_function(1, selected_loc);
+            tempinterval = setInterval(() => {
                 comparedrpli_function(itr, selected_loc);
                 itr++;
-            }, 2000);
-            $('subgroup-name').each(function () {
-                dataOriginal = getSubChartData(selected_date_formatted, '', $(this).text(), locationid);
-                dataSecondary = getSubChartData(selected_date_formatted, '', $(this).text(), selected_loc);
-                generateComapreSubChart(dataOriginal, dataSecondary, itr, -1, selected_loc);
-                itr++;
-            })
-        })
-        $('.comparedrpli-view').click(function () {
-            var dataOriginal, dataSecondary;
-            if ($('.custom_comparedrpli_date').val() == undefined || $('.custom_comparedrpli_date').val() == '') {
-                for (i = 1; i <= group_count; i++) {
-                    dataOriginal = getChartData(selected_date_formatted, '', i, locationid);
-                    dataSecondary = getChartData(selected_date_formatted, '', i, locationid);
-                    generateComapreChart(dataOriginal, dataSecondary, i - 1, -1)
+                if (itr > 12) {
+                    clearInterval(tempinterval);
                 }
-                $('subgroup-name').each(function () {
-                    dataOriginal = getSubChartData(selected_date_formatted, '', $(this).text(), locationid);
-                    dataSecondary = getSubChartData(selected_date_formatted, '', $(this).text(), locationid);
-                    generateComapreSubChart(dataOriginal, dataSecondary, itr, -1);
-                    itr++;
-                })
+            }, 1500);
+
+            //}
+            // $('.subgroup-name').each(function () {
+            //     dataOriginal = getSubChartData(selected_date_formatted, '', $(this).text(), locationid);
+            //     dataSecondary = getSubChartData(selected_date_formatted, '', $(this).text(), selected_loc);
+            //     generateComapreSubChart(dataOriginal, dataSecondary, itr, -1, selected_loc);
+            //     itr++;
+            // })
+        })
+        $('.comparedrpli-view').unbind('click').bind('click', function () {
+            var dataOriginal, dataSecondary, tempinterval2;
+            if ($('.custom_comparedrpli_date').val() == undefined || $('.custom_comparedrpli_date').val() == '') {
+                // for (i = 1; i <= 1; i++) {
+                //     dataOriginal = getChartData(selected_date_formatted, '', i, locationid);
+                //     dataSecondary = getChartData(selected_date_formatted, '', i, locationid);
+                //     generateComapreChart(dataOriginal, dataSecondary, i - 1, -1)
+                // }
+                i = 1;
+                comparedrpli_view_function(i);
+                i = 2;
+                tempinterval2 = setInterval(() => {
+                    comparedrpli_view_function(i);
+                    i++;
+                    if (i > 12) {
+                        clearInterval(tempinterval2);
+                    }
+                }, 1500);
             }
             else {
                 var itr = 0;
@@ -1485,6 +1499,23 @@ $(document).ready(function () {
         btnclicked();
     }
 
+
+    //webhism Calendar gadget
+
+    webshim.setOptions('forms-ext', {
+        replaceUI: 'auto',
+        types: 'date',
+        date: {
+            startView: 2,
+            inlinePicker: true,
+            classes: 'hide-inputbtns'
+        }
+    });
+    webshim.setOptions('forms', {
+        lazyCustomMessages: true
+    });
+    //start polyfilling
+    webshim.polyfill('forms forms-ext');
 
     //get week of date
     Date.prototype.getWeek = function (dowOffset) {

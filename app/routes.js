@@ -3,20 +3,20 @@ var dbconfig = require('../config/database')
 var connection = mysql.createConnection(dbconfig.connection)
 var express = require('express')
 var path = require('path')
-var mime = require('mime')
+var mime = require('mime-types')
 var bcrypt = require('bcrypt-nodejs')
 var fs = require('fs')
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const csvWriter = createCsvWriter({
     path: 'out.csv',
     header: [
-        { id: 'chno', title: 'Channel No' },
-        { id: 'timestamp', title: 'Time Stamp' },
-        { id: 'status', title: 'Status' },
-        { id: 'label', title: 'Label' },
+        { id: 'group_name', title: 'Group/Subgroup' },
+        { id: 'time', title: 'Day/Date/Time' },
+        { id: 'energy', title: 'Energy' },
         { id: 'location', title: 'Location' },
     ]
 });
+var groups_data = [], subgroup_data = [], previous_data = -1, previous_sub_data = -1;
 module.exports = function (app, passport) {
     /*app.get('/', function (req, res) {
         res.render('index.ejs')
@@ -237,6 +237,13 @@ module.exports = function (app, passport) {
         connection.query("select g.group_name, g.group_id,time(e.time) as time, e.energy, g.subgroup from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? and e.group_id = ? and date(e.time) = ? order by e.time asc", [req.body.locationid, req.body.group_id, req.body.date], (err, rows, fields) => {
             if (err)
                 console.log(err)
+            if (previous_data != 1) {
+                groups_data = rows;
+                previous_data = 1;
+            }
+            else {
+                groups_data = groups_data.concat(rows);
+            }
             res.send(rows)
         })
     })
@@ -318,6 +325,13 @@ module.exports = function (app, passport) {
         connection.query("select g.group_name, g.group_id,dayname(e.time) as dayname, e.energy from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? and e.group_id = ? and week(time) = ? order by e.time desc;", [req.body.locationid, req.body.group_id, req.body.weekid], (err, rows, fields) => {
             if (err)
                 console.log(err)
+            if (previous_data != 2) {
+                groups_data = rows;
+                previous_data = 2;
+            }
+            else {
+                groups_data = groups_data.concat(rows);
+            }
             res.send(rows)
         })
     })
@@ -327,6 +341,13 @@ module.exports = function (app, passport) {
         connection.query("select g.group_name, g.group_id,day(e.time) as day, e.energy from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? and e.group_id = ? and month(time) = ? order by e.time desc;", [req.body.locationid, req.body.group_id, req.body.monthid], (err, rows, fields) => {
             if (err)
                 console.log(err)
+            if (previous_data != 3) {
+                groups_data = rows;
+                previous_data = 3;
+            }
+            else {
+                groups_data = groups_data.concat(rows);
+            }
             res.send(rows)
         })
     })
@@ -335,6 +356,13 @@ module.exports = function (app, passport) {
         connection.query("select g.group_name, g.group_id, e.time as dates, e.energy from energy e , groups g where e.group_id = g.group_id and e.location = g.locationid and g.locationid = ? and e.group_id = ? and date(time) >= ? and date(time) <= ? order by e.time desc;", [req.body.locationid, req.body.group_id, req.body.fromdate, req.body.todate], (err, rows, fields) => {
             if (err)
                 console.log(err)
+            if (previous_data != 4) {
+                groups_data = rows;
+                previous_data = 4;
+            }
+            else {
+                groups_data = groups_data.concat(rows);
+            }
             res.send(rows)
         })
     })
@@ -343,6 +371,13 @@ module.exports = function (app, passport) {
         connection.query("select * from subgroups_energy where locationid = ? and date(time) = ? and subgroup_name = ?", [req.body.locationid, req.body.date, req.body.subgroup_name], (err, rows, fields) => {
             if (err)
                 console.log(err)
+            if (previous_sub_data != 1) {
+                subgroup_data = rows;
+                previous_sub_data = 1;
+            }
+            else {
+                subgroup_data = subgroup_data.concat(rows);
+            }
             res.send(rows)
         })
     })
@@ -352,6 +387,13 @@ module.exports = function (app, passport) {
         connection.query("select energy, subgroup_name, dayname(time) as dayname from subgroups_energy where locationid = ? and week(time) = ? and subgroup_name = ?", [req.body.locationid, req.body.weekid, req.body.subgroup_name], (err, rows, fields) => {
             if (err)
                 console.log(err)
+            if (previous_sub_data != 2) {
+                subgroup_data = rows;
+                previous_sub_data = 2;
+            }
+            else {
+                subgroup_data = subgroup_data.concat(rows);
+            }
             res.send(rows)
         })
     })
@@ -361,6 +403,13 @@ module.exports = function (app, passport) {
         connection.query("select energy, subgroup_name, day(time) as day from subgroups_energy where locationid = ? and month(time) = ? and subgroup_name = ?", [req.body.locationid, req.body.monthid, req.body.subgroup_name], (err, rows, fields) => {
             if (err)
                 console.log(err)
+            if (previous_sub_data != 3) {
+                subgroup_data = rows;
+                previous_sub_data = 3;
+            }
+            else {
+                subgroup_data = subgroup_data.concat(rows);
+            }
             res.send(rows)
         })
     })
@@ -369,6 +418,13 @@ module.exports = function (app, passport) {
         connection.query("select energy, subgroup_name, date(time) as dates from subgroups_energy where locationid = ? and date(time) >= ? and date(time) <= ? and subgroup_name = ?", [req.body.locationid, req.body.fromdate, req.body.todate, req.body.subgroup_name], (err, rows, fields) => {
             if (err)
                 console.log(err)
+            if (previous_sub_data != 4) {
+                subgroup_data = rows;
+                previous_sub_data = 4;
+            }
+            else {
+                subgroup_data = subgroup_data.concat(rows);
+            }
             res.send(rows)
         })
     })
@@ -436,6 +492,63 @@ module.exports = function (app, passport) {
             res.send(rows)
         })
     })
+    //------------------------------Generate CSV------------------------------------------------------------
+    app.get('/getCSV', function (req, res) {
+
+        data = []
+        for (i = 0; i <= groups_data.length; i++) {
+            var timet;
+            if (i == 0) {
+                b = {
+                    location: req.query.location_id,
+                }
+            }
+            else {
+                if (req.query.viewid == 0)
+                    timet = groups_data[i - 1].time;
+                else if (req.query.viewid == 1)
+                    timet = groups_data[i - 1].dayname;
+                else if (req.query.viewid == 2)
+                    timet = groups_data[i - 1].day;
+                else
+                    timet = groups_data[i - 1].dates;
+                b = {
+                    group_name: groups_data[i - 1].group_name,
+                    time: timet,
+                    energy: groups_data[i - 1].energy,
+                }
+            }
+            data[i] = b
+        }
+        for (i = 1; i <= subgroup_data.length; i++) {
+            if (req.query.viewid == 0)
+                timet = subgroup_data[i - 1].time;
+            else if (req.query.viewid == 1)
+                timet = subgroup_data[i - 1].dayname;
+            else if (req.query.viewid == 2)
+                timet = subgroup_data[i - 1].day;
+            else
+                timet = subgroup_data[i - 1].dates;
+            b = {
+                group_name: subgroup_data[i - 1].subgroup_name,
+                time: timet,
+                energy: subgroup_data[i - 1].energy,
+            }
+        }
+        csvWriter
+            .writeRecords(data)
+            .then(() => console.log('The CSV file was written successfully'));
+        let reqPath = path.join(__dirname, '../');
+        const csvfile = reqPath + 'out.csv'
+        var filename = path.basename(csvfile);
+        var mimetype = mime.lookup(csvfile);
+
+        res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+        res.setHeader('Content-type', mimetype);
+
+        var filestream = fs.createReadStream(csvfile);
+        filestream.pipe(res);
+    });
 }
 function isLoggedIn(req, res, next) {
     if (req.isAuthenticated()) {

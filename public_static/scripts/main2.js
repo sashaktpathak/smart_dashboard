@@ -674,7 +674,7 @@ $(document).ready(function () {
             labels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
             $.ajax({
                 type: 'POST',
-                data: { locationid: locationidt, group_id: grp_id, weekid: date1temp.getWeek() },
+                data: { locationid: locationidt, group_id: grp_id, weekid: date1temp.getWeek() - 1 },
                 dataType: 'json',
                 url: '/getWeeklyLinesData',
                 async: false,
@@ -1032,7 +1032,7 @@ $(document).ready(function () {
                     type: 'POST',
                     url: '/AllWeeklyData',
                     dataType: 'json',
-                    data: { locationid: location_itr, week: tempdate.getWeek() },
+                    data: { locationid: location_itr, week: tempdate.getWeek() - 1 },
                     success: function (data) {
                         for (i = 0; i < data.length; i++) {
                             data[i].sum = data[i].sum / 1000;

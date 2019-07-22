@@ -64,11 +64,7 @@ $(document).ready(function () {
                                         locationlist.push(data[t].location);
                                         $('.drpmn').append("<li class='drpmnli'>" + data[t].location + "<input type='hidden' class='stored_location_id' value='" + data[t].id + "'></li>")
                                         var temploc = [data[t].latitude, data[t].longitude];
-                                        locationmarker = new L.marker(temploc);
                                         latlong.push(temploc);
-                                        locationmarker.addTo(map)
-                                            .bindPopup('<b>Location: </b>' + data[t].id)
-                                            .on('click', changelocation);
                                         totallocations++;
                                     }
                                 }
@@ -419,9 +415,14 @@ $(document).ready(function () {
                 chartdata = getChartData(selected_date_formatted, '', grp_id);
             else
                 chartdata = getChartData($('.custom_from_date').val(), $('.custom_to_date').val(), grp_id);
+            if (chartdata[2] == undefined) {
+                line_config.data.datasets[0].label = 'Unconfigured';
+                alllinecharts[grp_id - 1].style.backgroundColor = 'rgba(160,160,160,0.4)';
+            }
+            else
+                line_config.data.datasets[0].label = chartdata[2];
             line_config.data.labels = chartdata[0];
             line_config.data.datasets[0].data = chartdata[1];
-            line_config.data.datasets[0].label = chartdata[2];
             ctx = alllinecharts[grp_id - 1].getContext('2d')
             window.myLine = new Chart(ctx, line_config);
             linechartval[grp_id - 1] = window.myLine;
@@ -796,9 +797,15 @@ $(document).ready(function () {
                         chartdata = getSubChartData(selected_date_formatted, '', data[subgrp_id - 1].subgroup_name);
                     else
                         chartdata = getSubChartData($('.custom_from_date').val(), $('.custom_to_date').val(), data[subgrp_id - 1].subgroup_name);
+
+                    if (chartdata[2] == undefined) {
+                        line_config.data.datasets[0].label = 'Unconfigured';
+                        allsublinecharts[subgrp_id - 1].style.backgroundColor = 'rgba(170,170,170,0.4)';
+                    }
+                    else
+                        line_config.data.datasets[0].label = chartdata[2];
                     line_config.data.labels = chartdata[0];
                     line_config.data.datasets[0].data = chartdata[1];
-                    line_config.data.datasets[0].label = chartdata[2];
                     ctx = allsublinecharts[subgrp_id - 1].getContext('2d')
                     window.myLine = new Chart(ctx, line_config);
                     sublinechartval[subgrp_id - 1] = window.myLine;
@@ -1224,13 +1231,15 @@ $(document).ready(function () {
                 configarray.push(configdata)
             }
         }
+
         configarray.sort(function (a, b) {
             return a.data[0] > b.data[0]
         })
         if (configarray.length) {
             barChartData2.labels = ['Locations']
             for (itr = 0; itr < totallocations; itr++) {
-                barChartData2.datasets[itr] = configarray[itr];
+                if (configarray[itr] != undefined)
+                    barChartData2.datasets[itr] = configarray[itr];
             }
             window.bar2.update();
         }
@@ -1255,6 +1264,14 @@ $(document).ready(function () {
         else
             totalenergyusage = 0;
         $('.totalenergyhere').text((totalenergyusage).toFixed(3) + 'Kwh')
+        for (i = 0; i < latlong.length; i++) {
+            locationmarker = new L.marker(latlong[i]);
+            if (dataSum[i] == undefined)
+                dataSum[i] = 0;
+            locationmarker.addTo(map)
+                .bindPopup('<b>Location: </b>' + locationlist[i] + '<br><b>Total EnergyUsed: </b>' + (dataSum[i]).toFixed(3) + 'Kwh <br><b>Location id: </b>   ' + (parseInt(i) + 1))
+                .on('click', changelocation);
+        }
     }
 
     //comparedrpli-list
@@ -1460,7 +1477,7 @@ $(document).ready(function () {
             if (latlong[i - 1][0] == templatlng[0] && latlong[i - 1][1] == templatlng[1]) {
                 locationid = i;
             }
-            var location_clicked = parseInt(e.target._popup._content.slice(17, 20));
+            var location_clicked = parseInt(e.target._popup._content.slice(e.target._popup._content.length - 3, e.target._popup._content.length));
             $('.location_text').text($('.drpmnli')[location_clicked - 1].innerText)
             RefreshAll();
         }

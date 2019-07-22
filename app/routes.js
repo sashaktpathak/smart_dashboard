@@ -462,7 +462,7 @@ module.exports = function (app, passport) {
     })
     app.get('/allroomscount', function (req, res) {
         connection.query('USE ' + dbconfig.database)
-        connection.query("select room_count from locations", [req.body.locationid, req.body.date1, req.body.date2], (err, rows, fields) => {
+        connection.query("select rooms as room_count from locations", [req.body.locationid, req.body.date1, req.body.date2], (err, rows, fields) => {
             if (err)
                 console.log(err)
             res.send(rows)

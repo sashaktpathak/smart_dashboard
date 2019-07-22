@@ -6,6 +6,6 @@ module.exports = {
         'user': 'ecom',
         'password': 'password_123',
     },
-    'database': 'dashboard',
+    'database': 'dashboard2',
     'user_table': 'users'
 }

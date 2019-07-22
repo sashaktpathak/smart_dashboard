@@ -384,6 +384,10 @@ html, body
     animation-delay: 2s;
     animation-iteration-count: 1; 
 }
+.greydiv
+{
+    background: rgb(150,150,150,1);
+}
 .room-matrix
 {
     display: none;

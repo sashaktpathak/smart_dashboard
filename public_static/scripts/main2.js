@@ -233,7 +233,7 @@ $(document).ready(function () {
                     subgroup[i % group_count] = data[i].subgroup;
                 }
                 for (itr = 0; itr < energy_list.length; itr++) {
-                    energy_list[itr] = energy_list[itr].toFixed(3);
+                    energy_list[itr] = energy_list[itr].toFixed(2);
                 }
 
                 for (var itr = 0; itr < energy_list.length; itr++) {
@@ -1263,13 +1263,13 @@ $(document).ready(function () {
             totalenergyusage = dataSum[locationid - 1];
         else
             totalenergyusage = 0;
-        $('.totalenergyhere').text((totalenergyusage).toFixed(3) + 'Kwh')
+        $('.totalenergyhere').text((totalenergyusage).toFixed(0) + 'Kwh')
         for (i = 0; i < latlong.length; i++) {
             locationmarker = new L.marker(latlong[i]);
             if (dataSum[i] == undefined)
                 dataSum[i] = 0;
             locationmarker.addTo(map)
-                .bindPopup('<b>Location: </b>' + locationlist[i] + '<br><b>Total EnergyUsed: </b>' + (dataSum[i]).toFixed(3) + 'Kwh <br><b>Location id: </b>   ' + (parseInt(i) + 1))
+                .bindPopup('<b>Location: </b>' + locationlist[i] + '<br><b>Total EnergyUsed: </b>' + (dataSum[i]).toFixed(1) + 'Kwh <br><b>Location id: </b>   ' + (parseInt(i) + 1))
                 .on('click', changelocation);
         }
     }

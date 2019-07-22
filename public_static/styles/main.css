@@ -214,10 +214,14 @@ html, body
 {
     display: none;
 }
-.energy-efficiency, .energy-efficiency>canvas 
+.energy-efficiency,  .energy-efficiency>canvas 
 {
     height: 100%;
     width: 95%;
+}
+.energy-efficiency>canvas 
+{
+    height: 90%;
 }
 .energy
 {

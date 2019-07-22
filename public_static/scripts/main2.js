@@ -31,7 +31,7 @@ $(document).ready(function () {
     }
     getTodayDate();
     /** -----------------------------Map Formation-------------------------------------------------- */
-    var map = L.map('map-area').setView([28.7041, 77.1025], 8);
+    var map = L.map('map-area').setView([28.7041, 77.1025], 9);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -69,6 +69,14 @@ $(document).ready(function () {
                                     }
                                 }
                             }
+                        }
+                        if (totallocations <= 1) {
+                            $('.dropdwn').prop('disabled', true);
+                            $('.dropdwn').css('color', '#aaa');
+                        }
+                        else {
+                            $('.dropdwn').prop('disabled', false);
+                            $('.dropdwn').css('color', 'white');
                         }
                     },
                     error: function () {
@@ -143,7 +151,7 @@ $(document).ready(function () {
             RefreshAll();
         })
         $('.btn2').click(function () {
-            $.get('/getCSV', { viewid: viewid, location_id: locationid }, function () {
+            $.get('/getCSV', { viewid: viewid, location_id: locationid, location_name: locationlist[locationid - 1], selected_dates: selected_date }, function () {
 
             })
             var str = '/getCSV?location_id=' + locationid + '&viewid=' + viewid;
@@ -1270,7 +1278,11 @@ $(document).ready(function () {
                 dataSum[i] = 0;
             locationmarker.addTo(map)
                 .bindPopup('<b>Location: </b>' + locationlist[i] + '<br><b>Total EnergyUsed: </b>' + (dataSum[i]).toFixed(1) + 'Kwh <br><b>Location id: </b>   ' + (parseInt(i) + 1))
-                .on('click', changelocation);
+                .on('click', changelocation).on('mouseover', function (e) {
+                    this.openPopup();
+                }).on('mouseout', function (e) {
+                    this.closePopup();
+                });
         }
     }
 

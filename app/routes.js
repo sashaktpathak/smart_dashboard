@@ -10,7 +10,9 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const csvWriter = createCsvWriter({
     path: 'out.csv',
     header: [
-        { id: 'group_name', title: 'Group/Subgroup' },
+        { id: 'group_name', title: 'Group' },
+        { id: 'subgroup_name', title: 'Subgroup' },
+        { id: 'selected_date', title: 'Selected Date' },
         { id: 'time', title: 'Day/Date/Time' },
         { id: 'energy', title: 'Energy' },
         { id: 'location', title: 'Location' },
@@ -500,7 +502,7 @@ module.exports = function (app, passport) {
             var timet;
             if (i == 0) {
                 b = {
-                    location: req.query.location_id,
+                    location: req.query.location_name,
                 }
             }
             else {
@@ -515,6 +517,7 @@ module.exports = function (app, passport) {
                 b = {
                     group_name: groups_data[i - 1].group_name,
                     time: timet,
+                    selected_date: req.query.selected_dates,
                     energy: groups_data[i - 1].energy,
                 }
             }
@@ -530,8 +533,9 @@ module.exports = function (app, passport) {
             else
                 timet = subgroup_data[i - 1].dates;
             b = {
-                group_name: subgroup_data[i - 1].subgroup_name,
+                subgroup_name: subgroup_data[i - 1].subgroup_name,
                 time: timet,
+                selected_date: req.body.selected_dates,
                 energy: subgroup_data[i - 1].energy,
             }
         }
@@ -542,6 +546,8 @@ module.exports = function (app, passport) {
         const csvfile = reqPath + 'out.csv'
         var filename = path.basename(csvfile);
         var mimetype = mime.lookup(csvfile);
+
+        groups_data = [], subgroup_data = [], previous_data = -1, previous_sub_data = -1;
 
         res.setHeader('Content-disposition', 'attachment; filename=' + filename);
         res.setHeader('Content-type', mimetype);

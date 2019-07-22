@@ -462,7 +462,7 @@ module.exports = function (app, passport) {
     })
     app.get('/allroomscount', function (req, res) {
         connection.query('USE ' + dbconfig.database)
-        connection.query("select count(distinct(subgroup_name)) as room_count from subgroups where parentgroup_id = 8 group by locationid", [req.body.locationid, req.body.date1, req.body.date2], (err, rows, fields) => {
+        connection.query("select room_count from locations", [req.body.locationid, req.body.date1, req.body.date2], (err, rows, fields) => {
             if (err)
                 console.log(err)
             res.send(rows)

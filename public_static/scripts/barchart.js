@@ -259,6 +259,10 @@ var bar_config2 = {
         responsive: false,
         legend: {
             position: 'top',
+            labels:
+            {
+                fontSize: 12
+            }
         },
         title: {
             display: false,

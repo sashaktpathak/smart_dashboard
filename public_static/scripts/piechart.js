@@ -30,7 +30,11 @@ var pie_config = {
         responsive: true,
         legend: {
             display: true,
-            position: 'left'
+            position: 'left',
+            labels:
+            {
+                fontSize: 12
+            }
         },
         title: {
             display: false,
@@ -70,7 +74,11 @@ var pie_config2 = {
         responsive: true,
         legend: {
             display: true,
-            position: 'left'
+            position: 'left',
+            labels:
+            {
+                fontSize: 12
+            }
         },
         title: {
             display: false,

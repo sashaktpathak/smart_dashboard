@@ -21,6 +21,7 @@
         integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <script src="http://afarkas.github.io/webshim/js-webshim/minified/polyfiller.js"></script>
     <script src="scripts/datepicker.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
     <link rel="stylesheet" href="styles/datepicker.css">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="shortcut icon" type="image/png" href="images/favicon.png">
@@ -30,8 +31,8 @@
     <header>
     </header>
     <section class="container-fluid body_section">
-        <div class="row container-fluid">
-            <div class="col col-sm-6 col-md-4">
+        <div class="row container" style="width: 100vw; padding: 0px;">
+            <div class="col col-sm-6 col-md-4 globalEnergy">
                 <div class="pie-chart">
                     <div class="title-upper-charts"><span class="chart-title">Global Energy Usage</span><br>
                         <span class="chart-subtitle">Premise wise energy breakup for monitored time</span>
@@ -39,7 +40,7 @@
                     <canvas id="globalpie-chart-area"></canvas>
                 </div>
             </div>
-            <div class="col col-sm-4 col-md-4 extra-column">
+            <div class="col col-sm-6 col-md-4 extra-column premiseEnergy">
                 <div class="pie-chart">
                     <div class="title-upper-charts"><span class="chart-title">Premise Energy Usage</span><br>
                         <span class="chart-subtitle">Group wise energy breakup of selected premise for monitored
@@ -49,7 +50,7 @@
                 </div>
             </div>
 
-            <div class="col col-sm-4 col-md-4">
+            <div class="col col-sm-12 col-md-4 relativeEnergy">
                 <div class="energy-efficiency">
                     <div class="title-upper-charts"><span class="chart-title">Relative Energy Consumption
                             Index</span><br>
@@ -60,7 +61,7 @@
                 </div>
             </div>
         </div>
-        <div class="row container-fluid">
+        <div class="row container" style="width: 100vw; padding: 0px;">
             <div class="col col-sm-4 col-md-2 alert-column">
                 <div class="container-fluid totaldataused">
                     Total Energy Usage:<br>
@@ -97,7 +98,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="col col-sm-12 col-md-5 matrix-area">MAtrix here</div>
+            <div class="col col-sm-8 col-md-5 matrix-area">MAtrix here</div>
             <div class="col col-sm-12 col-md-5 display-flex-col">
                 <div class="current_view">View :
                     <span class="view_text"> DAILY</span>
@@ -119,7 +120,7 @@
                     <div class="" style="display: inline-block;">Date: <span class="date_charts"></span> Location: <span
                             class="location_charts"></span></div>
                 </div>
-                <canvas class="big-chart"></canvas>
+                <svg class="big-chart"></svg>
             </div>
         </div>
         <div class="display-flex space-around container-fluid group-charts-area">
@@ -165,11 +166,11 @@
     <script src="scripts/Chart.min.js"></script>
     <script src="scripts/utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.0"></script> -->
     <script src="scripts/piechart.js"></script>
     <script src="scripts/barchart.js"></script>
     <script src="scripts/linechart.js"></script>
     <script src="scripts/global.js"></script>
+    <script src="scripts/d3barchart.js"></script>
     <script src="scripts/Pie.js"></script>
     <script src="scripts/groupCharts.js"></script>
     <script src="scripts/compares.js"></script>

@@ -326,37 +326,24 @@ $(document).ready(function () {
         return dateArray;
     }
 
-    //get Previous Sunday
-    function getSunday(d) {
-        d = new Date(d);
-        var day = d.getDay(),
-            diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
-        return new Date(d.setDate(diff));
-    }
-    //get Next Saturday
-    function getSaturday(d) {
-        d = new Date(d);
-        var day = d.getDay(),
-            diff = d.getDate() + (7 - day) + (day == 0 ? -6 : -1); // adjust when day is sunday
-        return new Date(d.setDate(diff));
-    }
-
 
     /**----------------------------------------Media Queries------------------------------------------------------- */
+    window.addEventListener('resize', function () {
+        updategraph();
+        console.log("a")
+    });
     function mediaquery(x) {
-        if (x.matches || window.innerWidth <= 1300) {
-            $('.bolt').css('margin-top', '-100px');
-            $('.bolt').css('width', '30px');
-            $('.energy').css('top', '-50px');
-        }
-        else {
-            $('.bolt').css('margin-top', '0px');
-            $('.bolt').css('width', '50px');
-            $('.energy').css('margin-top', '0px');
+        if (x.matches || window.innerWidth <= 900) {
+            $('.matrix-area').outerHeight($('.alert-column').outerHeight())
         }
     }
-    var x = window.matchMedia("(max-width: 1300px)")
+    var x = window.matchMedia("(max-width: 900px)")
     mediaquery(x)
     x.addListener(mediaquery)
+
+    // document.body.style.webkitTransform = 'scale(1)';
+    // document.body.style.msTransform = 'scale(100)';
+    // document.body.style.transform = 'scale(1)';
+    // document.body.style.zoom = screen.logicalXDPI / screen.deviceXDPI;
 
 })

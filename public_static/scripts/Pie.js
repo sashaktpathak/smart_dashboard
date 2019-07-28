@@ -1,7 +1,7 @@
 //Creating Bar chart
 function createBarandPieChart() {
-    ctx = document.getElementsByClassName('big-chart')[0].getContext('2d')
-    window.mybar = new Chart(ctx, bar_config)
+    //ctx = document.getElementsByClassName('big-chart')[0].getContext('2d')
+    //window.mybar = new Chart(ctx, bar_config)
 
     ctx = document.getElementById('pie-chart-area').getContext('2d');
     window.myPie = new Chart(ctx, pie_config);
@@ -26,7 +26,6 @@ function piechartdata(tempdate, tempdate2) {
     var grouplist = []
     var groupnamelist = []
     var energylist = []
-    var backgroundlist = ['rgb(30, 165, 210)', 'rgb(255, 158, 15)', 'rgb(249, 155, 146)', 'rgb(135, 164, 195)', 'rgb(116, 237, 224)', 'rgb(215, 199, 179)', 'rgb(0,0,0)', 'rgb(220,230,130)', 'rgb(246, 134, 72)', 'rgb(238, 102, 108)', 'rgb(103, 138, 104)', 'rgb(178, 204, 141)', 'rgb(218, 178, 212)', 'rgb(228, 210, 145)', 'rgb(102, 194, 145)', 'rgb(255,0,0)', 'rgb(0,255,0)', 'rgb(0,0,255)'];
     var dataSum = [0], dataEfficiency = [0];
     var dataType = 1;
     if (viewid == 0) {
@@ -330,6 +329,7 @@ function piechartdata(tempdate, tempdate2) {
                 this.closePopup();
             });
     }
+    pieconfigMedia(x)
 }
 
 //Map on click change location
@@ -344,3 +344,23 @@ function changelocation(e) {
         RefreshAll();
     }
 }
+function pieconfigMedia(x) {
+    if (x.matches || window.innerWidth <= 1300) {
+        pie_config.options.legend.labels.fontSize = 8;
+        pie_config2.options.legend.labels.fontSize = 9;
+        bar_config2.options.legend.labels.fontSize = 9;
+        window.myPie.update();
+        window.myPie2.update();
+        window.bar2.update();
+    }
+    else {
+        pie_config.options.legend.labels.fontSize = 12;
+        bar_config2.options.legend.labels.fontSize = 12;
+        pie_config2.options.legend.labels.fontSize = 12;
+        window.myPie.update();
+        window.myPie2.update();
+        window.bar2.update();
+    }
+}
+var x = window.matchMedia("(max-width: 1300px)")
+x.addListener(pieconfigMedia)

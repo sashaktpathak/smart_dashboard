@@ -1,3 +1,5 @@
+
+var modelfield_names = ['field1', 'field2', 'field3', 'field4', 'field5', 'field6', 'field7', 'field8', 'field9', 'field10', 'field11', 'field12'];
 //Forming Matrix
 function formmatrix() {
     var date1temp1, date2temp1;
@@ -62,6 +64,7 @@ function formmatrix() {
             for (itr = 0; itr < energy_list.length; itr++) {
                 energy_list[itr] = energy_list[itr].toFixed(2);
             }
+            group_names = group_name_list;
 
             for (var itr = 0; itr < energy_list.length; itr++) {
                 var temphtml = $('.matrix-div').html();
@@ -216,7 +219,9 @@ function createCharts() {
 //Generating data
 function generateCharts() {
     var chartdata;
+    var fieldtemptext = 'field';
     for (grp_id = 1; grp_id <= group_count; grp_id++) {
+        var fieldtemp = fieldtemptext + grp_id;
         if (viewid != 3)
             chartdata = getChartData(selected_date_formatted, '', grp_id);
         else
@@ -237,8 +242,21 @@ function generateCharts() {
         barChartData.datasets[grp_id - 1].data = chartdata[1];
         barChartData.labels = chartdata[0];
         barChartData.datasets[grp_id - 1].label = chartdata[2];
-        window.mybar.update();
+        var tempajx = {
+            fieldtemp: chartdata[1],
+
+        };
+        if (chartdata[0].length) {
+            console.log(chartdata[0], chartdata[1])
+            for (grp_id_i = 0; grp_id_i < chartdata[0].length; grp_id_i++) {
+                console.log(grp_id_i, models[grp_id_i])
+                models[grp_id_i].model_name = chartdata[0][grp_id_i];
+                models[grp_id_i][modelfield_names[grp_id - 1]] = chartdata[1][grp_id_i];
+            }
+            model_length = chartdata[0].length
+        }
     }
+    updategraph();
 }
 
 //Retrieving Chart Data
@@ -625,4 +643,18 @@ function scrollGroup() {
         }
         scrollOff = 0;
     })
+}
+//get Previous Sunday
+function getSunday(d) {
+    d = new Date(d);
+    var day = d.getDay(),
+        diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
+    return new Date(d.setDate(diff));
+}
+//get Next Saturday
+function getSaturday(d) {
+    d = new Date(d);
+    var day = d.getDay(),
+        diff = d.getDate() + (7 - day) + (day == 0 ? -6 : -1); // adjust when day is sunday
+    return new Date(d.setDate(diff));
 }

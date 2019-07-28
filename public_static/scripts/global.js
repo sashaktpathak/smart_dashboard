@@ -21,11 +21,14 @@ var locationlist = [];
 var loading_data = 1, loadingInterval, loadingOn = 0;
 var LeafIcon = L.Icon.extend({
     options: {
-        iconSize: [25, 28],
+        iconSize: [26, 34],
     }
 })
+var group_names = [];
 var greenIcon = new LeafIcon({ iconUrl: '../images/marker-icon-new-lightgreen.png' }),
     redIcon = new LeafIcon({ iconUrl: '../images/marker-icon-new.png' }),
     blueIcon = new LeafIcon({ iconUrl: '../images/marker-icon-new-blue.png' }),
     greyIcon = new LeafIcon({ iconUrl: '../images/marker-icon-new-grey.png' }),
     darkgreenIcon = new LeafIcon({ iconUrl: '../images/marker-icon-new-green.png' });
+var models = [], model_length;
+var backgroundlist = ['rgb(30, 165, 210)', 'rgb(255, 158, 15)', 'rgb(249, 155, 146)', 'rgb(135, 164, 195)', 'rgb(116, 237, 224)', 'rgb(215, 199, 179)', 'rgb(0,0,0)', 'rgb(220,230,130)', 'rgb(246, 134, 72)', 'rgb(238, 102, 108)', 'rgb(103, 138, 104)', 'rgb(178, 204, 141)', 'rgb(218, 178, 212)', 'rgb(228, 210, 145)', 'rgb(102, 194, 145)', 'rgb(255,0,0)', 'rgb(0,255,0)', 'rgb(0,0,255)'];

@@ -14,7 +14,7 @@ var dsn = {
     host: 'localhost',
     user: 'ecom',
     password: 'password_123',
-};
+}
 var mysqlEventWatcher = MySQLEvents(dsn);
 
 require('./config/passport')(passport);

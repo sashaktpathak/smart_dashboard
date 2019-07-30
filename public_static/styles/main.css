@@ -331,26 +331,16 @@ html, body
     padding: 0px;
     padding-bottom: 30px; 
 }
-.big-chart
+#big_charts
 {
     height: 600px !important;
     width: 100% !important;
-    transform: rotateX(180deg);
 }
-.x.axis
-{
-    transform: rotateX(180deg);
-}
-.y.axis
-{
-    transform: rotateX(180deg) translateY(60px);
-    transform-origin: 0% 50%;
-}
-.big-chart>svg, .big-chart>svg>g
+/* .big-chart>svg, .big-chart>svg>g
 {
     height: 100%;
     width: 999px;
-}
+} */
 .btn-compare, .btn-roomcompare
 {
     position: relative;
@@ -473,6 +463,21 @@ html, body
     100% { transform: rotate(360deg); }
   }
 /*--------------------------Media Queries-------------------------------------*/
+@media screen and (max-width: 762px)
+{
+    .matrix-area
+    {
+        width:100% !important;
+    }
+}
+@media screen and (max-width: 900px) and (min-width: 762px)
+{
+    .matrix-area
+    {
+        width:66.66666667% !important;
+        height: 100%;
+    }
+}
 @media screen and (max-width: 900px)
 {
     .body_section .row
@@ -492,11 +497,6 @@ html, body
         width: 120px;
         height: 95px;
     }
-    .matrix-area
-    {
-        width:66.66666667% !important;
-        height: 100%;
-    }
     .display-flex-col
     {
         width:100% !important;
@@ -507,6 +507,10 @@ html, body
         height: 112px !important;
         margin: 3px;
         font-size: 0.9em;
+    }
+    #big_charts
+    {
+        font-size: 10px;
     }
 } 
 @media screen and (max-width: 1100px)

@@ -104,7 +104,7 @@
                     <span class="view_text"> DAILY</span>
                 </div>
                 <div class="current_view">Location :
-                    <span class="location_text"> DELHI</span>
+                    <span class="location_text"> </span>
                 </div>
                 <div class="current_view">Date :
                     <span class="date_text">2019-06-01</span>
@@ -115,12 +115,7 @@
         </div>
         <div class="row container-fluid">
             <div class="col col-sm-12 col-md-12 big-chart-div">
-                <div>
-                    <button class="btn-danger" onclick="resetZoom()">Reset Zoom</button>
-                    <div class="" style="display: inline-block;">Date: <span class="date_charts"></span> Location: <span
-                            class="location_charts"></span></div>
-                </div>
-                <svg class="big-chart"></svg>
+                <div id="big_charts"></div>
             </div>
         </div>
         <div class="display-flex space-around container-fluid group-charts-area">
@@ -163,6 +158,9 @@
     </section>
     <footer>
     </footer>
+    <script src="https://www.amcharts.com/lib/4/core.js"></script>
+    <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
     <script src="scripts/Chart.min.js"></script>
     <script src="scripts/utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
@@ -170,8 +168,8 @@
     <script src="scripts/barchart.js"></script>
     <script src="scripts/linechart.js"></script>
     <script src="scripts/global.js"></script>
-    <script src="scripts/d3barchart.js"></script>
     <script src="scripts/Pie.js"></script>
+    <script src="scripts/amchart.js"></script>
     <script src="scripts/groupCharts.js"></script>
     <script src="scripts/compares.js"></script>
     <script src="scripts/main2.js"></script>

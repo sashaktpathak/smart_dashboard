@@ -81,14 +81,19 @@ $(document).ready(function () {
             getGroupCount();
             createBarandPieChart();
             generatePieCharts();
-            formmatrix();
-            createCharts();
-            createSubCharts();
-            $('.date_charts').text(selected_date);
-            $('.location_charts').text(locationlist[locationid - 1]);
-            loadComparebtnData();
-            btnclicked();
-            comparedata();
+            setTimeout(() => {
+                formmatrix();
+            }, 1200)
+            setTimeout(() => {
+                createCharts();
+                createSubCharts();
+                $('.date_charts').text(selected_date);
+                $('.location_text').text(locationlist[locationid - 1])
+                $('.location_charts').text(locationlist[locationid - 1]);
+                loadComparebtnData();
+                btnclicked();
+                comparedata();
+            }, 2500)
             $('[data-toggle="datepicker"]').datepicker();
         })
         $('.drpmnli').click(function () {
@@ -141,6 +146,11 @@ $(document).ready(function () {
             // })
             window.open(str)
         })
+
+        //Refresh after 25 min
+        setInterval(() => {
+            RefreshAll();
+        }, 1450000)
     })
     /**------------------------------------loading footer--------------------------------------------- */
     $('footer').load('footer.html')
@@ -227,6 +237,7 @@ $(document).ready(function () {
             $('.matrix-about').text('Status');
         }
         $('.location_charts').text(locationlist[locationid - 1])
+        $('.location_text').text(locationlist[locationid - 1])
     }
 
     //loading screen
@@ -244,7 +255,7 @@ $(document).ready(function () {
     }
 
     //Refresh All
-    function RefreshAll() {
+    RefreshAll = function () {
         loading_data = 1;
         loadingOn = 1;
         $('#loadingModal').modal('toggle');
@@ -253,13 +264,17 @@ $(document).ready(function () {
             line_config.data.datasets.splice(1, 2);
         getGroupCount();
         generatePieCharts();
-        formmatrix();
-        createCharts();
-        createSubCharts();
-        setDateText();
-        loadComparebtnData();
-        comparedata();
-        btnclicked();
+        setTimeout(() => {
+            formmatrix();
+        }, 1200)
+        setTimeout(() => {
+            createCharts();
+            createSubCharts();
+            setDateText();
+            loadComparebtnData();
+            btnclicked();
+            comparedata();
+        }, 2500)
     }
 
 
@@ -316,22 +331,7 @@ $(document).ready(function () {
         return dat;
     }
 
-    function getDates(startDate, stopDate) {
-        var dateArray = new Array();
-        var currentDate = startDate;
-        while (currentDate <= stopDate) {
-            dateArray.push(currentDate)
-            currentDate = currentDate.addDays(1);
-        }
-        return dateArray;
-    }
-
-
     /**----------------------------------------Media Queries------------------------------------------------------- */
-    window.addEventListener('resize', function () {
-        updategraph();
-        console.log("a")
-    });
     function mediaquery(x) {
         if (x.matches || window.innerWidth <= 900) {
             $('.matrix-area').outerHeight($('.alert-column').outerHeight())

@@ -1,7 +1,7 @@
 //Creating Bar chart
 function createBarandPieChart() {
-    //ctx = document.getElementsByClassName('big-chart')[0].getContext('2d')
-    //window.mybar = new Chart(ctx, bar_config)
+    // ctx = document.getElementsByClassName('big-chart')[0].getContext('2d');
+    // window.mybar = new Chart(ctx, bar_config);
 
     ctx = document.getElementById('pie-chart-area').getContext('2d');
     window.myPie = new Chart(ctx, pie_config);
@@ -338,10 +338,10 @@ function changelocation(e) {
     for (i = 1; i <= totallocations; i++) {
         if (latlong[i - 1][0] == templatlng[0] && latlong[i - 1][1] == templatlng[1]) {
             locationid = i;
+            var location_clicked = parseInt(e.target._popup._content.slice(e.target._popup._content.length - 3, e.target._popup._content.length));
+            $('.location_text').text($('.drpmnli')[location_clicked - 1].innerText)
+            RefreshAll();
         }
-        var location_clicked = parseInt(e.target._popup._content.slice(e.target._popup._content.length - 3, e.target._popup._content.length));
-        $('.location_text').text($('.drpmnli')[location_clicked - 1].innerText)
-        RefreshAll();
     }
 }
 function pieconfigMedia(x) {

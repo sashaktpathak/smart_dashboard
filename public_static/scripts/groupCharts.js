@@ -242,14 +242,8 @@ function generateCharts() {
         barChartData.datasets[grp_id - 1].data = chartdata[1];
         barChartData.labels = chartdata[0];
         barChartData.datasets[grp_id - 1].label = chartdata[2];
-        var tempajx = {
-            fieldtemp: chartdata[1],
-
-        };
         if (chartdata[0].length) {
-            console.log(chartdata[0], chartdata[1])
             for (grp_id_i = 0; grp_id_i < chartdata[0].length; grp_id_i++) {
-                console.log(grp_id_i, models[grp_id_i])
                 models[grp_id_i].model_name = chartdata[0][grp_id_i];
                 models[grp_id_i][modelfield_names[grp_id - 1]] = chartdata[1][grp_id_i];
             }
@@ -657,4 +651,14 @@ function getSaturday(d) {
     var day = d.getDay(),
         diff = d.getDate() + (7 - day) + (day == 0 ? -6 : -1); // adjust when day is sunday
     return new Date(d.setDate(diff));
+}
+
+function getDates(startDate, stopDate) {
+    var dateArray = new Array();
+    var currentDate = startDate;
+    while (currentDate <= stopDate) {
+        dateArray.push(currentDate)
+        currentDate = currentDate.addDays(1);
+    }
+    return dateArray;
 }
